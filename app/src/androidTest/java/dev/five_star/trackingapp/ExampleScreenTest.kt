@@ -1,4 +1,4 @@
-package dev.five_star.template
+package dev.five_star.trackingapp
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier

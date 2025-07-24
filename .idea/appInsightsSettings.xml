@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="dev.five_star.template" />
-                  <option name="mobileSdkAppId" value="1:457277055176:android:caaa23996f71d2c5fb45fd" />
-                  <option name="projectId" value="templateproject-14cb6" />
-                  <option name="projectNumber" value="457277055176" />
+                  <option name="appId" value="dev.five_star.trackingapp" />
+                  <option name="mobileSdkAppId" value="1:622844959446:android:272f0b9625ec7d28850777" />
+                  <option name="projectId" value="trackingapp-3605c" />
+                  <option name="projectNumber" value="622844959446" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

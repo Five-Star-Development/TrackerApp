@@ -1,4 +1,4 @@
-package dev.five_star.template.ui.theme
+package dev.five_star.trackingapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
