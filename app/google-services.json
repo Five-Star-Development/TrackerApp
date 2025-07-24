@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "457277055176",
-    "project_id": "templateproject-14cb6",
-    "storage_bucket": "templateproject-14cb6.firebasestorage.app"
+    "project_number": "622844959446",
+    "project_id": "trackingapp-3605c",
+    "storage_bucket": "trackingapp-3605c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:457277055176:android:caaa23996f71d2c5fb45fd",
+        "mobilesdk_app_id": "1:622844959446:android:272f0b9625ec7d28850777",
         "android_client_info": {
-          "package_name": "dev.five_star.template"
+          "package_name": "dev.five_star.trackingapp"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB8i6jzsT7VZuSdFtJjMzRQreWbkREIHpg"
+          "current_key": "AIzaSyDPg1zN5pJ9w7USWCPps1IlXLeCMW3fOvo"
         }
       ],
       "services": {

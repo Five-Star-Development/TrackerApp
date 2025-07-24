@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.five_star.template"
+    namespace = "dev.five_star.trackingapp"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "dev.five_star.template"
+        applicationId = "dev.five_star.trackingapp"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

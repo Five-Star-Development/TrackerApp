@@ -1,4 +1,4 @@
-package dev.five_star.template
+package dev.five_star.trackingapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,14 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import dev.five_star.template.ui.theme.TemplateTheme
+import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TemplateTheme {
+            TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ExampleRoot(ExampleViewModel(), Modifier.padding(innerPadding))
                 }
@@ -38,7 +38,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    TemplateTheme {
+    TrackingAppTheme {
         Greeting("Android")
     }
 }
