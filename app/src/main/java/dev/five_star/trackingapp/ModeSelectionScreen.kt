@@ -2,6 +2,7 @@ package dev.five_star.trackingapp
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ModeSelectionScreen(modifier: Modifier) {
+fun ModeSelectionScreen(modifier: Modifier, navigate: (Any) -> Unit) {
 
     Box(
         modifier = modifier
@@ -53,14 +54,15 @@ fun ModeSelectionScreen(modifier: Modifier) {
                 .fillMaxWidth()
         ) {
 
-            ModeButton(Modifier.weight(1f), "Tracker", "🛰")
-            ModeButton(Modifier.weight(1f), "Observer", "🗺")
+            ModeButton(Modifier.weight(1f), "Tracker", "🛰", navigate)
+            ModeButton(Modifier.weight(1f), "Observer", "🗺", navigate)
+
         }
     }
 }
 
 @Composable
-fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String) {
+fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, navigate: (Any) -> Unit) {
 
     var isPressed by remember { mutableStateOf(false) }
     val elevation by animateDpAsState(targetValue = if (isPressed) 2.dp else 10.dp)
@@ -83,6 +85,7 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String) {
                     }
                 )
             }
+            .clickable(onClick = { navigate(ExampleScreen) })
     ) {
         Text(
             text = icon,

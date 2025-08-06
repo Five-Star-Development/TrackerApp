@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -22,6 +23,8 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 data object ModeSelection
+
+data object ExampleScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +46,16 @@ class MainActivity : ComponentActivity() {
                         ),
                         entryProvider = entryProvider {
                             entry<ModeSelection> {
-                                ModeSelectionScreen(Modifier.padding(innerPadding))
-//                                ExampleRoot(
-//                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
-//                                    modifier = Modifier.padding(innerPadding)
-//                                )
+                                ModeSelectionScreen(Modifier.padding(innerPadding)) { direction ->
+                                    backstack.add(direction)
+                                }
+                            }
+
+                            entry<ExampleScreen> {
+                                ExampleRoot(
+                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
+                                    modifier = Modifier.padding(innerPadding)
+                                )
                             }
                         }
                     )
