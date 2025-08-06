@@ -9,9 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
+
+data object ModeSelection
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +31,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ExampleRoot(ExampleViewModel(), Modifier.padding(innerPadding))
+                    val backstack = remember { mutableStateListOf<Any>(ModeSelection) }
+
+                    NavDisplay(
+                        backStack = backstack,
+                        onBack = { backstack.removeLastOrNull() },
+                        entryDecorators = listOf(
+                            rememberSceneSetupNavEntryDecorator(),
+                            rememberSavedStateNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator()
+                        ),
+                        entryProvider = entryProvider {
+                            entry<ModeSelection> {
+                                ExampleRoot(
+                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
+                                    modifier = Modifier.padding(innerPadding)
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }
