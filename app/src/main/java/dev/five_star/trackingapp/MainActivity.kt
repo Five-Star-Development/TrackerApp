@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -36,6 +35,7 @@ class MainActivity : ComponentActivity() {
                     NavDisplay(
                         backStack = backstack,
                         onBack = { backstack.removeLastOrNull() },
+                        // necessary because we want rememberViewModelStoreNavEntryDecorator
                         entryDecorators = listOf(
                             rememberSceneSetupNavEntryDecorator(),
                             rememberSavedStateNavEntryDecorator(),
@@ -43,10 +43,11 @@ class MainActivity : ComponentActivity() {
                         ),
                         entryProvider = entryProvider {
                             entry<ModeSelection> {
-                                ExampleRoot(
-                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
-                                    modifier = Modifier.padding(innerPadding)
-                                )
+                                ModeSelectionScreen(Modifier.padding(innerPadding))
+//                                ExampleRoot(
+//                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
+//                                    modifier = Modifier.padding(innerPadding)
+//                                )
                             }
                         }
                     )
