@@ -1,5 +1,6 @@
-package dev.five_star.trackingapp
+package dev.five_star.trackingapp.features.modeselection.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,12 +23,27 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.five_star.trackingapp.Destinations
+
+
 
 @Composable
-fun ModeSelectionScreen(modifier: Modifier, navigate: (Any) -> Unit) {
+fun ModeSelectionScreen(
+    modifier: Modifier,
+    viewModel: ModeSelectionViewModel,
+    navigate: (Destinations) -> Unit
+) {
+
+    val state = viewModel.state.collectAsStateWithLifecycle()
+    state.value.navigateTo?.let { destination ->
+        navigate(destination)
+    }
 
     Box(
         modifier = modifier
@@ -36,11 +52,11 @@ fun ModeSelectionScreen(modifier: Modifier, navigate: (Any) -> Unit) {
     ) {
 
         Box(
-            modifier = Modifier.fillMaxHeight(0.39f),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxHeight(0.39f), contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Select if you want to use this device as a Tracker or as a Observer",
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 style = TextStyle(
                     fontSize = 36.sp, lineHeight = 40.sp
                 ),
@@ -54,15 +70,25 @@ fun ModeSelectionScreen(modifier: Modifier, navigate: (Any) -> Unit) {
                 .fillMaxWidth()
         ) {
 
-            ModeButton(Modifier.weight(1f), "Tracker", "🛰", navigate)
-            ModeButton(Modifier.weight(1f), "Observer", "🗺", navigate)
 
+
+            ModeButton(
+                Modifier.weight(1f),
+                "Tracker",
+                "🛰"
+            ) { viewModel.onAction(ModeSelectionAction.OnTrackerClicked) }
+
+            ModeButton(
+                Modifier.weight(1f),
+                "Observer",
+                "🗺"
+            ) { viewModel.onAction(ModeSelectionAction.OnObserverClicked) }
         }
     }
 }
 
 @Composable
-fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, navigate: (Any) -> Unit) {
+fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, onClick: () -> Unit) {
 
     var isPressed by remember { mutableStateOf(false) }
     val elevation by animateDpAsState(targetValue = if (isPressed) 2.dp else 10.dp)
@@ -82,10 +108,9 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, naviga
                         } finally {
                             isPressed = false
                         }
-                    }
-                )
+                    })
             }
-            .clickable(onClick = { navigate(ExampleScreen) })
+            .clickable(onClick = { onClick.invoke() })
     ) {
         Text(
             text = icon,
@@ -103,7 +128,15 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, naviga
             Text(
                 text = " use this \n" + " device as", fontSize = 28.sp
             )
-            Text(text = name, fontSize = 64.sp)
+            Text(text = name, fontSize = 64.sp, fontWeight = FontWeight.Bold)
         }
     }
+}
+
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview
+@Composable
+fun ModeSelectionPreview() {
+    ModeSelectionScreen(Modifier, ModeSelectionViewModel(), {})
 }

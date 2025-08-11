@@ -13,18 +13,25 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
+import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
+import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
-data object ModeSelection
 
-data object ExampleScreen
+sealed class Destinations {
+    data object ModeSelection : Destinations()
+    data object Tracker : Destinations()
+    data object Observer : Destinations()
+
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +40,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val backstack = remember { mutableStateListOf<Any>(ModeSelection) }
+                    val backstack =
+                        remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
 
                     NavDisplay(
                         backStack = backstack,
@@ -45,17 +53,21 @@ class MainActivity : ComponentActivity() {
                             rememberViewModelStoreNavEntryDecorator()
                         ),
                         entryProvider = entryProvider {
-                            entry<ModeSelection> {
-                                ModeSelectionScreen(Modifier.padding(innerPadding)) { direction ->
+                            entry<Destinations.ModeSelection> {
+                                ModeSelectionScreen(
+                                    Modifier.padding(innerPadding),
+                                    ModeSelectionViewModel()
+                                ) { direction ->
                                     backstack.add(direction)
                                 }
                             }
 
-                            entry<ExampleScreen> {
-                                ExampleRoot(
-                                    viewModel = viewModel(factory = ExampleViewModel.Factory()),
-                                    modifier = Modifier.padding(innerPadding)
-                                )
+                            entry<Destinations.Tracker> {
+                                TrackerScreen(Modifier.padding(innerPadding))
+                            }
+
+                            entry<Destinations.Observer> {
+                                ObserverScreen(Modifier.padding(innerPadding))
                             }
                         }
                     )
