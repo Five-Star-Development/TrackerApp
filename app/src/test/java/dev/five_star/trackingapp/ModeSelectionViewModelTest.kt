@@ -16,6 +16,7 @@ class ModeSelectionViewModelTest {
     fun `onAction OnTrackerClicked updates state with Tracker destination`() = runTest {
         viewModel = ModeSelectionViewModel()
         viewModel.state.test {
+            //to not have initial state
             awaitItem()
             viewModel.onAction(ModeSelectionAction.OnTrackerClicked)
             assertEquals(Destinations.Tracker, awaitItem().navigateTo)
@@ -28,6 +29,7 @@ class ModeSelectionViewModelTest {
     fun `onAction OnObserver Clicked updates state with Observer destination`() = runTest {
         viewModel = ModeSelectionViewModel()
         viewModel.state.test {
+            //to not have initial state
             awaitItem()
             viewModel.onAction(ModeSelectionAction.OnObserverClicked)
             assertEquals(Destinations.Observer, awaitItem().navigateTo)

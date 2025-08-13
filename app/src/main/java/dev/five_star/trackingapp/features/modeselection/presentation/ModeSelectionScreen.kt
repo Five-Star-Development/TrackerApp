@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -60,13 +61,17 @@ fun ModeSelectionScreen(
         )
 
         ModeButton(
-            Modifier.weight(0.3f),
+            Modifier
+                .weight(0.3f)
+                .testTag("TrackerButton"),
             "Tracker",
             "🛰"
         ) { viewModel.onAction(ModeSelectionAction.OnTrackerClicked) }
 
         ModeButton(
-            Modifier.weight(0.3f),
+            Modifier
+                .weight(0.3f)
+                .testTag("ObserverButton"),
             "Observer",
             "🗺"
         ) { viewModel.onAction(ModeSelectionAction.OnObserverClicked) }
@@ -125,5 +130,5 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, onClic
 @Preview
 @Composable
 fun ModeSelectionPreview() {
-    ModeSelectionScreen(Modifier, ModeSelectionViewModel()){}
+    ModeSelectionScreen(Modifier, ModeSelectionViewModel()) {}
 }
