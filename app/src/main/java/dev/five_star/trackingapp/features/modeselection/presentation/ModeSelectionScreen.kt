@@ -90,13 +90,14 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, onClic
                     onPress = {
                         isPressed = true
                         try {
-                            awaitRelease() // Warten bis losgelassen wird
+                            awaitRelease()
                         } finally {
                             isPressed = false
                         }
-                    })
+                    }
+                )
             }
-            .clickable(onClick = { onClick.invoke() })
+            .clickable(onClick = { onClick() })
     ) {
         Text(
             text = icon,
@@ -124,5 +125,5 @@ fun ModeButton(modifier: Modifier = Modifier, name: String, icon: String, onClic
 @Preview
 @Composable
 fun ModeSelectionPreview() {
-    ModeSelectionScreen(Modifier, ModeSelectionViewModel(), {})
+    ModeSelectionScreen(Modifier, ModeSelectionViewModel()){}
 }
