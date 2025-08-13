@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +31,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.five_star.trackingapp.Destinations
 
 
-
 @Composable
 fun ModeSelectionScreen(
     modifier: Modifier,
@@ -45,45 +43,33 @@ fun ModeSelectionScreen(
         navigate(destination)
     }
 
-    Box(
-        modifier = modifier
+    Column(
+        modifier
             .fillMaxSize()
-            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            .padding(start = 16.dp, top = 32.dp, end = 16.dp)
     ) {
 
-        Box(
-            modifier = Modifier.fillMaxHeight(0.39f), contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Select if you want to use this device as a Tracker or as a Observer",
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                style = TextStyle(
-                    fontSize = 36.sp, lineHeight = 40.sp
-                ),
-            )
-        }
+        Text(
+            text = "Select if you want to use this device as a Tracker or as a Observer",
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp)
+                .weight(0.4f),
+            style = TextStyle(
+                fontSize = 36.sp, lineHeight = 40.sp
+            ),
+        )
 
-        Column(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxHeight(0.60f)
-                .fillMaxWidth()
-        ) {
+        ModeButton(
+            Modifier.weight(0.3f),
+            "Tracker",
+            "🛰"
+        ) { viewModel.onAction(ModeSelectionAction.OnTrackerClicked) }
 
-
-
-            ModeButton(
-                Modifier.weight(1f),
-                "Tracker",
-                "🛰"
-            ) { viewModel.onAction(ModeSelectionAction.OnTrackerClicked) }
-
-            ModeButton(
-                Modifier.weight(1f),
-                "Observer",
-                "🗺"
-            ) { viewModel.onAction(ModeSelectionAction.OnObserverClicked) }
-        }
+        ModeButton(
+            Modifier.weight(0.3f),
+            "Observer",
+            "🗺"
+        ) { viewModel.onAction(ModeSelectionAction.OnObserverClicked) }
     }
 }
 
