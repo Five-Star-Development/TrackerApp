@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TrackingApp</string>
+    <!--  GPS Status  -->
+    <string name="gps_no_signal">No Signal!</string>
+    <string name="gps_weak">Weak</string>
+    <string name="gps_medium">Medium</string>
+    <string name="gps_good">Good</string>
+    <string name="gps_perfect">Perfect!</string>
 </resources>

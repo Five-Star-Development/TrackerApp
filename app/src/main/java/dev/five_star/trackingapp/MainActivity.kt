@@ -19,10 +19,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
+import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             entry<Destinations.Tracker> {
-                                TrackerScreen(Modifier.padding(innerPadding))
+                                TrackerScreen(Modifier.padding(innerPadding), TrackerViewModel())
                             }
 
                             entry<Destinations.Observer> {
