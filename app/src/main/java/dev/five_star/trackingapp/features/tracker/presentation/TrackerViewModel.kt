@@ -2,6 +2,7 @@ package dev.five_star.trackingapp.features.tracker.presentation
 
 import android.location.Location
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dev.five_star.trackingapp.features.tracker.data.LocationDataSource
@@ -85,4 +86,14 @@ class TrackerViewModel(private val locationDataSource: LocationDataSource) : Vie
         }
     }
 
+}
+
+class TrackerViewModelFactory(private val locationDataSource: LocationDataSource) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TrackerViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TrackerViewModel(locationDataSource) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+    }
 }

@@ -28,6 +28,7 @@ import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.features.tracker.data.LocationDataSource
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
+import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 
@@ -72,7 +73,10 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.Tracker> {
                                 val context = LocalContext.current
                                 val locationDataSource = LocationDataSource(context)
-                                TrackerScreen(Modifier.padding(innerPadding), TrackerViewModel(locationDataSource))
+                                TrackerScreen(
+                                    Modifier.padding(innerPadding),
+                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource))
+                                )
                             }
 
                             entry<Destinations.Observer> {
