@@ -1,5 +1,5 @@
 [versions]
-agp = "8.12.1"
+agp = "8.13.0"
 kotlin = "2.2.10"
 coreKtx = "1.17.0"
 junit = "5.13.4"
@@ -8,13 +8,14 @@ coroutines = "1.10.2"
 turbine = "1.2.1"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.9.2"
+lifecycleRuntimeKtx = "2.9.3"
 activityCompose = "1.10.1"
-composeBom = "2025.08.00"
+composeBom = "2025.08.01"
 navigation3 = "1.0.0-alpha07"
 lifecycleViewmodelNav3 = "1.0.0-alpha04"
-maps-compose = "6.7.1"
+maps-compose = "6.10.0"
 playServicesMaps = "19.2.0"
+playServicesLocation = "21.3.0"
 
 
 [libraries]
@@ -47,6 +48,8 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 # Maps
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "maps-compose" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+
 
 
 [plugins]
