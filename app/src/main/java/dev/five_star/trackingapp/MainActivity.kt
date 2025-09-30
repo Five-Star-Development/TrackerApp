@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
                                     Modifier.padding(innerPadding),
-                                    ModeSelectionViewModel()
+                                    viewModel<ModeSelectionViewModel>()
                                 ) { direction ->
                                     backstack.add(direction)
                                 }
