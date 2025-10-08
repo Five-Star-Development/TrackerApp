@@ -1,6 +1,7 @@
 package dev.five_star.trackingapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,17 +13,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
+import dev.five_star.trackingapp.features.tracker.data.LocationDataSource
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
+import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
+import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 
@@ -43,6 +49,8 @@ class MainActivity : ComponentActivity() {
                     val backstack =
                         remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
 
+                    Log.d("MainActivity", "backstack: ${backstack.toList()}")
+
                     NavDisplay(
                         backStack = backstack,
                         onBack = { backstack.removeLastOrNull() },
@@ -56,14 +64,19 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
                                     Modifier.padding(innerPadding),
-                                    ModeSelectionViewModel()
+                                    viewModel<ModeSelectionViewModel>()
                                 ) { direction ->
                                     backstack.add(direction)
                                 }
                             }
 
                             entry<Destinations.Tracker> {
-                                TrackerScreen(Modifier.padding(innerPadding))
+                                val context = LocalContext.current
+                                val locationDataSource = LocationDataSource(context)
+                                TrackerScreen(
+                                    Modifier.padding(innerPadding),
+                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource))
+                                )
                             }
 
                             entry<Destinations.Observer> {
