@@ -1,6 +1,7 @@
 package dev.five_star.trackingapp.features.tracker.presentation
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.LocalActivity
@@ -49,6 +50,7 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import dev.five_star.trackingapp.features.LocationService
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 @Composable
@@ -124,6 +126,8 @@ fun GPSStatus(modifier: Modifier, strength: GpsStrength) {
 @Composable
 fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle: () -> Unit) {
     val rotation by animateFloatAsState(targetValue = if (isTracking) 90f else 0f)
+    // is there a better way?
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -132,7 +136,11 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
             .aspectRatio(1f)
             .border(2.dp, LocalContentColor.current, CircleShape)
             .clip(CircleShape)
-            .clickable { onToggle() },
+            .clickable {
+                val trackingService = Intent(context, LocationService::class.java)
+                context.startService(trackingService)
+                onToggle()
+                       },
         contentAlignment = Alignment.Center
     ) {
         Icon(
