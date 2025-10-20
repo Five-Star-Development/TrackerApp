@@ -50,7 +50,9 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import dev.five_star.trackingapp.features.LocationService
+import dev.five_star.trackingapp.controller.LocationControllerManager
+import dev.five_star.trackingapp.data.FirebaseLocationRepository
+import dev.five_star.trackingapp.service.LocationService
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 @Composable
@@ -137,6 +139,8 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
             .border(2.dp, LocalContentColor.current, CircleShape)
             .clip(CircleShape)
             .clickable {
+                val repository = FirebaseLocationRepository()
+                LocationControllerManager.start(repository)
                 val trackingService = Intent(context, LocationService::class.java)
                 context.startService(trackingService)
                 onToggle()

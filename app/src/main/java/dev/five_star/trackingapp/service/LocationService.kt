@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.features
+package dev.five_star.trackingapp.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -6,10 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.location.Location
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -18,10 +16,10 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.location.Priority
 import dev.five_star.trackingapp.MainActivity
 import dev.five_star.trackingapp.R
-import java.util.Date
+import dev.five_star.trackingapp.controller.LocationControllerManager
 
 class LocationService : Service() {
 
@@ -51,6 +49,7 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         stopLocationUpdates()
+        LocationControllerManager.stop()
         super.onDestroy()
     }
 
@@ -69,7 +68,7 @@ class LocationService : Service() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (loc in result.locations) {
-                    handleLocation(loc)
+                    LocationEventBus.location.tryEmit(loc)
                 }
             }
 
@@ -100,7 +99,7 @@ class LocationService : Service() {
     private fun startLocationUpdates() {
         try {
             val locationRequest = LocationRequest.Builder(
-                PRIORITY_HIGH_ACCURACY, 0L
+                Priority.PRIORITY_HIGH_ACCURACY, 0L
             ).apply {
                 setMinUpdateIntervalMillis(2000L)
                 setMinUpdateDistanceMeters(5F)
@@ -117,11 +116,5 @@ class LocationService : Service() {
 
     private fun stopLocationUpdates() {
         fusedClient.removeLocationUpdates(locationCallback)
-    }
-
-    private fun handleLocation(location: Location) {
-        Log.d(TAG, "onLocationResult.latitude: ${location.latitude}")
-        Log.d(TAG, "onLocationResult.longitude: ${location.longitude}")
-        Log.d(TAG, "onLocationResult.time: ${Date(location.time)}")
     }
 }
