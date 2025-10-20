@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 // Read the API key from local.properties
@@ -15,6 +16,8 @@ if (localPropertiesFile.exists()) {
     }
 }
 val mapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "YOUR_DEFAULT_API_KEY_IF_NOT_FOUND")
+val firebaseDatabaseUrl = localProperties.getProperty("FIREBASE_DATABASE_URL", "YOUR_DEFAULT_URL_IF_NOT_FOUND")
+
 
 android {
     namespace = "dev.five_star.trackingapp"
@@ -29,6 +32,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "FIREBASE_DATABASE_URL", "\"$firebaseDatabaseUrl\"")
     }
 
     buildTypes {
@@ -53,6 +57,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     testOptions {
@@ -61,34 +66,46 @@ android {
 }
 
 dependencies {
-
+    // Core & Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Navigation
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    //Maps
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.common.ktx)
+    implementation(libs.firebase.database.ktx)
+
+    // Maps
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
 
+    // Unit Tests
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(kotlin("test"))
 
+    // Instrumented Tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    testImplementation(kotlin("test"))
 }
