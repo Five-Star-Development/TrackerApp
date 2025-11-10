@@ -144,7 +144,7 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
                 val trackingService = Intent(context, LocationService::class.java)
                 context.startService(trackingService)
                 onToggle()
-                       },
+            },
         contentAlignment = Alignment.Center
     ) {
         Icon(

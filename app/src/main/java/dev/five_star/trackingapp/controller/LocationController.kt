@@ -8,7 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class LocationController(private val repository: LocationRepository) {
+class LocationController(vararg val repository: LocationRepository) {
 
     private var job: Job? = null
 
@@ -18,7 +18,7 @@ class LocationController(private val repository: LocationRepository) {
         }
         job = scope.launch {
             LocationEventBus.location.collect { location ->
-                repository.save(location)
+                repository.forEach { it.save(location) }
             }
         }
     }
