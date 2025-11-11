@@ -1,4 +1,6 @@
-import java.util.Properties
+
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,17 +9,35 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
-// Read the API key from local.properties
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.inputStream().use { input ->
-        localProperties.load(input)
+fun getSecret(name: String): String {
+    return try {
+        val process = ProcessBuilder(
+            "gcloud", "secrets", "versions", "access", "latest", "--secret=$name"
+        ).redirectErrorStream(true).start()
+
+        val output = BufferedReader(InputStreamReader(process.inputStream)).readText().trim()
+        val exitCode = process.waitFor()
+        if (exitCode == 0) output else {
+            println("Warning: failed to get secret $name (exit $exitCode)")
+            ""
+        }
+    } catch (e: Exception) {
+        println("Error reading secret $name: ${e.message}")
+        ""
     }
 }
-val mapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "YOUR_DEFAULT_API_KEY_IF_NOT_FOUND")
-val firebaseDatabaseUrl = localProperties.getProperty("FIREBASE_DATABASE_URL", "YOUR_DEFAULT_URL_IF_NOT_FOUND")
 
+fun getCachedSecret(name: String): String {
+    val cacheDir = File(rootDir, "local-secrets")
+    val cacheFile = File(cacheDir, "$name.txt")
+
+    if (cacheFile.exists()) return cacheFile.readText().trim()
+
+    val secret = getSecret(name)
+    cacheDir.mkdirs()
+    cacheFile.writeText(secret)
+    return secret
+}
 
 android {
     namespace = "dev.five_star.trackingapp"
@@ -31,8 +51,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
-        buildConfigField("String", "FIREBASE_DATABASE_URL", "\"$firebaseDatabaseUrl\"")
+
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = getCachedSecret("GOOGLE_MAPS_API_KEY")
+        buildConfigField("String", "FIREBASE_DATABASE_URL", "\"${getCachedSecret("FIREBASE_DATABASE_URL")}\"")
     }
 
     buildTypes {
