@@ -1,6 +1,7 @@
 package dev.five_star.trackingapp.features.tracker.presentation
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
@@ -60,15 +61,15 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
-    val gpsValue = state.value.gpsValue
     val isTracking = state.value.isTracking
     val location = state.value.location
     val zoom = state.value.zoom
 
+    LocalContext.current.toggleTrackingService(isTracking)
+
     TrackerScreenContent(
         modifier = modifier,
         gpsStrength = gpsStrength,
-        gpsValue = gpsValue,
         isTracking = isTracking,
         location = location,
         zoom = zoom,
@@ -82,7 +83,6 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 fun TrackerScreenContent(
     modifier: Modifier,
     gpsStrength: GpsStrength,
-    gpsValue: Double = 0.0,
     isTracking: Boolean,
     location: LatLng?,
     zoom: Float,
@@ -128,8 +128,6 @@ fun GPSStatus(modifier: Modifier, strength: GpsStrength) {
 @Composable
 fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle: () -> Unit) {
     val rotation by animateFloatAsState(targetValue = if (isTracking) 90f else 0f)
-    // is there a better way?
-    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -141,8 +139,6 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
             .clickable {
                 val repository = FirebaseLocationRepository()
                 LocationControllerManager.start(repository)
-                val trackingService = Intent(context, LocationService::class.java)
-                context.startService(trackingService)
                 onToggle()
             },
         contentAlignment = Alignment.Center
@@ -242,11 +238,21 @@ fun TrackerContentPreview() {
             TrackerScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 GpsStrength.GOOD,
-                0.0,
                 true,
                 LatLng(0.0, 0.0),
                 0f,
             )
+        }
+    }
+}
+
+
+fun Context.toggleTrackingService(activate: Boolean) {
+    Intent(this, LocationService::class.java).also {
+        if (activate) {
+            this.startService(it)
+        } else {
+            this.stopService(it)
         }
     }
 }
