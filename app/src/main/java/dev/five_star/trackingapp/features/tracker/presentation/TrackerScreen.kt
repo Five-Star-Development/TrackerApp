@@ -1,6 +1,8 @@
 package dev.five_star.trackingapp.features.tracker.presentation
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.LocalActivity
@@ -49,6 +51,9 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import dev.five_star.trackingapp.controller.LocationControllerManager
+import dev.five_star.trackingapp.data.FirebaseLocationRepository
+import dev.five_star.trackingapp.service.LocationService
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 @Composable
@@ -56,15 +61,15 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
-    val gpsValue = state.value.gpsValue
     val isTracking = state.value.isTracking
     val location = state.value.location
     val zoom = state.value.zoom
 
+    LocalContext.current.toggleTrackingService(isTracking)
+
     TrackerScreenContent(
         modifier = modifier,
         gpsStrength = gpsStrength,
-        gpsValue = gpsValue,
         isTracking = isTracking,
         location = location,
         zoom = zoom,
@@ -78,7 +83,6 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 fun TrackerScreenContent(
     modifier: Modifier,
     gpsStrength: GpsStrength,
-    gpsValue: Double = 0.0,
     isTracking: Boolean,
     location: LatLng?,
     zoom: Float,
@@ -132,7 +136,11 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
             .aspectRatio(1f)
             .border(2.dp, LocalContentColor.current, CircleShape)
             .clip(CircleShape)
-            .clickable { onToggle() },
+            .clickable {
+                val repository = FirebaseLocationRepository()
+                LocationControllerManager.start(repository)
+                onToggle()
+            },
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -230,11 +238,21 @@ fun TrackerContentPreview() {
             TrackerScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 GpsStrength.GOOD,
-                0.0,
                 true,
                 LatLng(0.0, 0.0),
                 0f,
             )
+        }
+    }
+}
+
+
+fun Context.toggleTrackingService(activate: Boolean) {
+    Intent(this, LocationService::class.java).also {
+        if (activate) {
+            this.startService(it)
+        } else {
+            this.stopService(it)
         }
     }
 }

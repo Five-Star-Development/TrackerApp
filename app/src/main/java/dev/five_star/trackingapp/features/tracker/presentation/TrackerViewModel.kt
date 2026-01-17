@@ -39,7 +39,7 @@ class TrackerViewModel(private val locationDataSource: LocationDataSource) : Vie
                     it.copy(
                         location = location.toUiModel(),
                         zoom = zoom,
-                        gpsValue = location.accuracy.toDouble(),
+//                        gpsValue = location.accuracy.toDouble(),
                         gpsStrength = location.accuracy.toGPSUiModel()
                     )
                 }
