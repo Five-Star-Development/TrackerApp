@@ -63,7 +63,7 @@ class TrackerViewModel(private val locationDataSource: LocationDataSource) : Vie
         }
     }
 
-    private fun Location.toUiModel(): LatLng? = LatLng(latitude, longitude)
+    private fun Location.toUiModel(): LatLng = LatLng(latitude, longitude)
 
     private fun Double.toGPSUiModel(): GpsStrength {
         return when {

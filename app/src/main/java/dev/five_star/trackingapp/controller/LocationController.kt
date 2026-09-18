@@ -1,5 +1,6 @@
 package dev.five_star.trackingapp.controller
 
+import dev.five_star.trackingapp.data.toDomain
 import dev.five_star.trackingapp.domain.repository.LocationRepository
 import dev.five_star.trackingapp.service.LocationEventBus
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +19,8 @@ class LocationController(vararg val repository: LocationRepository) {
         }
         job = scope.launch {
             LocationEventBus.location.collect { location ->
-                repository.forEach { it.save(location) }
+                val domainLocation = location.toDomain()
+                repository.forEach { it.save(domainLocation) }
             }
         }
     }
