@@ -1,8 +1,8 @@
-package dev.five_star.trackingapp.features.tracker.presentation
+package dev.five_star.trackingapp.feature.tracker.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import dev.five_star.trackingapp.R
+import dev.five_star.trackingapp.feature.tracker.R
 
 enum class GpsStrength(val color: Color, @param:StringRes val labelRes: Int) {
     NO_SIGNAL(Color(0xFFFF6961), R.string.gps_no_signal),

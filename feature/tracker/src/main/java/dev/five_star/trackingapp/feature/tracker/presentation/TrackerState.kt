@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.features.tracker.presentation
+package dev.five_star.trackingapp.feature.tracker.presentation
 
 import com.google.android.gms.maps.model.LatLng
 

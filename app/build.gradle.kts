@@ -86,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:tracker"))
     implementation(project(":feature:observer"))
     implementation(project(":core:settings"))
     implementation(project(":core:location"))
@@ -105,10 +106,6 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-
-    // Maps
-    implementation(libs.maps.compose)
-    implementation(libs.play.services.maps)
 
     // Unit Tests
     testImplementation(libs.junit.jupiter.api)
