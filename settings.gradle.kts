@@ -21,5 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "TrackingApp"
 include(":app")
+include(":feature:observer")
 include(":core:settings")
 include(":core:location")

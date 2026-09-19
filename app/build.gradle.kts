@@ -86,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:observer"))
     implementation(project(":core:settings"))
     implementation(project(":core:location"))
     // Core & Lifecycle

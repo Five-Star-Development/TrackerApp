@@ -26,7 +26,7 @@ import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
-import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
+import dev.five_star.trackingapp.feature.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModelFactory

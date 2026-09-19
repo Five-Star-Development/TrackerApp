@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.features.observer.presentation
+package dev.five_star.trackingapp.feature.observer.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
