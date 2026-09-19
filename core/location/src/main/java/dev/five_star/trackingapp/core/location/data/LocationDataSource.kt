@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.features.tracker.data
+package dev.five_star.trackingapp.core.location.data
 
 import android.Manifest
 import android.annotation.SuppressLint

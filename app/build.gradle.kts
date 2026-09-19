@@ -86,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:location"))
     // Core & Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -103,15 +104,9 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.database.ktx)
-
     // Maps
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
-    implementation(libs.play.services.location)
 
     // Unit Tests
     testImplementation(libs.junit.jupiter.api)

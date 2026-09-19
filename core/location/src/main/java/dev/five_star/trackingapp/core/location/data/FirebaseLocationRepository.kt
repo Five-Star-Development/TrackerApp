@@ -1,17 +1,16 @@
-package dev.five_star.trackingapp.data
+package dev.five_star.trackingapp.core.location.data
 
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
-import dev.five_star.trackingapp.BuildConfig
-import dev.five_star.trackingapp.domain.model.LocationModel
-import dev.five_star.trackingapp.domain.repository.LocationRepository
+import dev.five_star.trackingapp.core.location.domain.model.LocationModel
+import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
 import java.util.Date
 
-class FirebaseLocationRepository: LocationRepository {
+class FirebaseLocationRepository(databaseUrl: String) : LocationRepository {
 
     private val TAG = "FirebaseLocationRepo"
-    val database = Firebase.database(BuildConfig.FIREBASE_DATABASE_URL)
+    val database = Firebase.database(databaseUrl)
     val locationsRef = database.getReference("locations")
 
     override suspend fun save(location: LocationModel) {

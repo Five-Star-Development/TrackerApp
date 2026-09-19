@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.domain.model
+package dev.five_star.trackingapp.core.location.domain.model
 
 data class LocationModel(
     val latitude: Double,

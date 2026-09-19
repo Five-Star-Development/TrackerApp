@@ -51,13 +51,12 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import dev.five_star.trackingapp.controller.LocationControllerManager
-import dev.five_star.trackingapp.data.FirebaseLocationRepository
-import dev.five_star.trackingapp.service.LocationService
-import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
+import dev.five_star.trackingapp.core.location.controller.LocationControllerManager
+import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
+import dev.five_star.trackingapp.core.location.service.LocationService
 
 @Composable
-fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
+fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel, locationRepository: LocationRepository) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
@@ -73,7 +72,10 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
         isTracking = isTracking,
         location = location,
         zoom = zoom,
-        onTrackingToggled = { viewModel.onAction(TrackerAction.OnTrackerClicked) },
+        onTrackingToggled = {
+            LocationControllerManager.start(locationRepository)
+            viewModel.onAction(TrackerAction.OnTrackerClicked)
+        },
         onZoomChanged = { viewModel.onAction(TrackerAction.UpdateZoom(it)) },
         onPermissionGranted = { viewModel.onAction(TrackerAction.OnPermissionGranted) }
     )
@@ -137,8 +139,6 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
             .border(2.dp, LocalContentColor.current, CircleShape)
             .clip(CircleShape)
             .clickable {
-                val repository = FirebaseLocationRepository()
-                LocationControllerManager.start(repository)
                 onToggle()
             },
         contentAlignment = Alignment.Center
@@ -233,16 +233,14 @@ fun LocationPermissionHandler(onPermissionGranted: () -> Unit) {
 @PreviewLightDark
 @Composable
 fun TrackerContentPreview() {
-    TrackingAppTheme {
-        Scaffold { innerPadding ->
-            TrackerScreenContent(
-                modifier = Modifier.padding(innerPadding),
-                GpsStrength.GOOD,
-                true,
-                LatLng(0.0, 0.0),
-                0f,
-            )
-        }
+    Scaffold { innerPadding ->
+        TrackerScreenContent(
+            modifier = Modifier.padding(innerPadding),
+            GpsStrength.GOOD,
+            true,
+            LatLng(0.0, 0.0),
+            0f,
+        )
     }
 }
 

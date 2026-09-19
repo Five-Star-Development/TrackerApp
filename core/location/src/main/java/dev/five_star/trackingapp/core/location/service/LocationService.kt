@@ -1,4 +1,4 @@
-package dev.five_star.trackingapp.service
+package dev.five_star.trackingapp.core.location.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -17,9 +17,8 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import dev.five_star.trackingapp.MainActivity
-import dev.five_star.trackingapp.R
-import dev.five_star.trackingapp.controller.LocationControllerManager
+import dev.five_star.trackingapp.core.location.R
+import dev.five_star.trackingapp.core.location.controller.LocationControllerManager
 
 class LocationService : Service() {
 
@@ -79,7 +78,7 @@ class LocationService : Service() {
     }
 
     private fun buildNotification(title: String): Notification {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
             // Whare are this actually for?
@@ -90,7 +89,7 @@ class LocationService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Tracker")
             .setContentText(title)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification_location)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()

@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TrackingApp"
 include(":app")
+include(":core:location")

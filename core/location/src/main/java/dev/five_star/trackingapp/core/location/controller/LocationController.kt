@@ -1,8 +1,8 @@
-package dev.five_star.trackingapp.controller
+package dev.five_star.trackingapp.core.location.controller
 
-import dev.five_star.trackingapp.data.toDomain
-import dev.five_star.trackingapp.domain.repository.LocationRepository
-import dev.five_star.trackingapp.service.LocationEventBus
+import dev.five_star.trackingapp.core.location.data.toDomain
+import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
+import dev.five_star.trackingapp.core.location.service.LocationEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -1,6 +1,6 @@
-package dev.five_star.trackingapp.controller
+package dev.five_star.trackingapp.core.location.controller
 
-import dev.five_star.trackingapp.domain.repository.LocationRepository
+import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
 
 object LocationControllerManager {
     private var controller: LocationController? = null

@@ -22,10 +22,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
+import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
 import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
 import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
-import dev.five_star.trackingapp.features.tracker.data.LocationDataSource
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModelFactory
@@ -72,10 +73,14 @@ class MainActivity : ComponentActivity() {
 
                             entry<Destinations.Tracker> {
                                 val context = LocalContext.current
-                                val locationDataSource = LocationDataSource(context)
+                                val locationDataSource = remember { LocationDataSource(context) }
+                                val locationRepository = remember {
+                                    FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
+                                }
                                 TrackerScreen(
                                     Modifier.padding(innerPadding),
-                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource))
+                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource)),
+                                    locationRepository
                                 )
                             }
 
