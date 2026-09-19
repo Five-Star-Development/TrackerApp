@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "TrackingApp"
 include(":app")
+include(":core:settings")
 include(":core:location")
