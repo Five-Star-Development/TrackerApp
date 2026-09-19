@@ -86,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:modeselection"))
     implementation(project(":feature:tracker"))
     implementation(project(":feature:observer"))
     implementation(project(":core:settings"))

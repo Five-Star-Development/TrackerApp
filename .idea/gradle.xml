@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/core/location" />
             <option value="$PROJECT_DIR$/core/settings" />
             <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/modeselection" />
             <option value="$PROJECT_DIR$/feature/observer" />
             <option value="$PROJECT_DIR$/feature/tracker" />
           </set>

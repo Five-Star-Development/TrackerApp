@@ -24,8 +24,13 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.core.settings.data.SharedPreferencesSettingsRepository
+import dev.five_star.trackingapp.core.settings.domain.AppMode
+import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
+import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
+import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
+import dev.five_star.trackingapp.feature.modeselection.ui.ModeSelectionScreen
 import dev.five_star.trackingapp.feature.observer.presentation.ObserverScreen
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
@@ -47,6 +52,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val context = LocalContext.current
+                    val settingsRepository = remember { SharedPreferencesSettingsRepository(context) }
+                    val setAppModeUseCase = remember { SetAppModeUseCase(settingsRepository) }
+                    val getAppModeUseCase = remember { GetAppModeUseCase(settingsRepository) }
+
                     val backstack =
                         remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
 
@@ -64,15 +74,25 @@ class MainActivity : ComponentActivity() {
                         entryProvider = entryProvider {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
-                                    Modifier.padding(innerPadding),
-                                    viewModel<ModeSelectionViewModel>()
-                                ) { direction ->
-                                    backstack.add(direction)
-                                }
+                                    viewModel = viewModel<ModeSelectionViewModel>(
+                                        factory = ModeSelectionViewModelFactory(
+                                            setAppModeUseCase,
+                                            getAppModeUseCase
+                                        )
+                                    ),
+                                    onNavigate = { mode ->
+                                        val destination = when (mode) {
+                                            AppMode.TRACKER -> Destinations.Tracker
+                                            AppMode.OBSERVER -> Destinations.Observer
+                                            AppMode.UNDEFINED -> null
+                                        }
+                                        destination?.let { backstack.add(it) }
+                                    },
+                                    modifier = Modifier.padding(innerPadding)
+                                )
                             }
 
                             entry<Destinations.Tracker> {
-                                val context = LocalContext.current
                                 val locationDataSource = remember { LocationDataSource(context) }
                                 val locationRepository = remember {
                                     FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
