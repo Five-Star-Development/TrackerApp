@@ -1,8 +1,7 @@
-package dev.five_star.trackingapp
+package dev.five_star.trackingapp.feature.modeselection.presentation
 
 import app.cash.turbine.test
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionAction
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.core.settings.domain.AppMode
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -19,7 +18,7 @@ class ModeSelectionViewModelTest {
             //to not have initial state
             awaitItem()
             viewModel.onAction(ModeSelectionAction.OnTrackerClicked)
-            assertEquals(Destinations.Tracker, awaitItem().navigateTo)
+            assertEquals(AppMode.TRACKER, awaitItem().navigationTarget)
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -32,7 +31,7 @@ class ModeSelectionViewModelTest {
             //to not have initial state
             awaitItem()
             viewModel.onAction(ModeSelectionAction.OnObserverClicked)
-            assertEquals(Destinations.Observer, awaitItem().navigateTo)
+            assertEquals(AppMode.OBSERVER, awaitItem().navigationTarget)
 
             cancelAndIgnoreRemainingEvents()
         }
