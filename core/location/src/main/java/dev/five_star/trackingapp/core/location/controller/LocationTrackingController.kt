@@ -6,9 +6,10 @@ import dev.five_star.trackingapp.core.location.domain.repository.LocationReposit
 import dev.five_star.trackingapp.core.location.service.LocationService
 
 class LocationTrackingController(
-    private val context: Context,
+    context: Context,
     private val repository: LocationRepository
 ) {
+    private val context = context.applicationContext
 
     fun start() {
         context.startService(Intent(context, LocationService::class.java))
