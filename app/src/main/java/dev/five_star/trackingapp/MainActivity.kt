@@ -22,6 +22,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
 import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.core.settings.data.SharedPreferencesSettingsRepository
@@ -97,10 +98,14 @@ class MainActivity : ComponentActivity() {
                                 val locationRepository = remember {
                                     FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
                                 }
+                                val trackingController = remember {
+                                    LocationTrackingController(context.applicationContext, locationRepository)
+                                }
                                 TrackerScreen(
                                     Modifier.padding(innerPadding),
-                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource)),
-                                    locationRepository
+                                    viewModel<TrackerViewModel>(
+                                        factory = TrackerViewModelFactory(locationDataSource, trackingController)
+                                    )
                                 )
                             }
 

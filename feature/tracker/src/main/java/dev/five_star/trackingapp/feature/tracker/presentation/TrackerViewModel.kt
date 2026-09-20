@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +13,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class TrackerViewModel(private val locationDataSource: LocationDataSource) : ViewModel() {
+class TrackerViewModel(
+    private val locationDataSource: LocationDataSource,
+    private val trackingController: LocationTrackingController
+) : ViewModel() {
 
     private val _state = MutableStateFlow(TrackerState())
     val state = _state.stateIn(
@@ -48,10 +52,13 @@ class TrackerViewModel(private val locationDataSource: LocationDataSource) : Vie
     }
 
     private fun toggleTracking() {
-        _state.update {
-            it.copy(
-                isTracking = !it.isTracking
-            )
+        val isTracking = !_state.value.isTracking
+        _state.update { it.copy(isTracking = isTracking) }
+
+        if (isTracking) {
+            trackingController.start()
+        } else {
+            trackingController.stop()
         }
     }
 
@@ -88,11 +95,14 @@ class TrackerViewModel(private val locationDataSource: LocationDataSource) : Vie
 
 }
 
-class TrackerViewModelFactory(private val locationDataSource: LocationDataSource) : ViewModelProvider.Factory {
+class TrackerViewModelFactory(
+    private val locationDataSource: LocationDataSource,
+    private val trackingController: LocationTrackingController
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TrackerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TrackerViewModel(locationDataSource) as T
+            return TrackerViewModel(locationDataSource, trackingController) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

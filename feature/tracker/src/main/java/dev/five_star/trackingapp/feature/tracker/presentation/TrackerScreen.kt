@@ -1,8 +1,6 @@
 package dev.five_star.trackingapp.feature.tracker.presentation
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.LocalActivity
@@ -51,12 +49,8 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import dev.five_star.trackingapp.core.location.controller.LocationControllerManager
-import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
-import dev.five_star.trackingapp.core.location.service.LocationService
-
 @Composable
-fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel, locationRepository: LocationRepository) {
+fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
@@ -64,18 +58,13 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel, locationRepos
     val location = state.value.location
     val zoom = state.value.zoom
 
-    LocalContext.current.toggleTrackingService(isTracking)
-
     TrackerScreenContent(
         modifier = modifier,
         gpsStrength = gpsStrength,
         isTracking = isTracking,
         location = location,
         zoom = zoom,
-        onTrackingToggled = {
-            LocationControllerManager.start(locationRepository)
-            viewModel.onAction(TrackerAction.OnTrackerClicked)
-        },
+        onTrackingToggled = { viewModel.onAction(TrackerAction.OnTrackerClicked) },
         onZoomChanged = { viewModel.onAction(TrackerAction.UpdateZoom(it)) },
         onPermissionGranted = { viewModel.onAction(TrackerAction.OnPermissionGranted) }
     )
@@ -241,16 +230,5 @@ fun TrackerContentPreview() {
             LatLng(0.0, 0.0),
             0f,
         )
-    }
-}
-
-
-fun Context.toggleTrackingService(activate: Boolean) {
-    Intent(this, LocationService::class.java).also {
-        if (activate) {
-            this.startService(it)
-        } else {
-            this.stopService(it)
-        }
     }
 }
