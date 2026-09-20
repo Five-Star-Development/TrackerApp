@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             entry<Destinations.Tracker> {
-                                val locationDataSource = remember { LocationDataSource(context) }
+                                val locationDataSource = remember { LocationDataSource(context.applicationContext) }
                                 val locationRepository = remember {
                                     FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
                                 }
