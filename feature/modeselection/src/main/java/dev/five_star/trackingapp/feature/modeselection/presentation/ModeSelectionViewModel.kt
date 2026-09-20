@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ModeSelectionViewModel(
-    private val setAppModeUseCase: SetAppModeUseCase? = null,
-    private val getAppModeUseCase: GetAppModeUseCase? = null
+    private val setAppModeUseCase: SetAppModeUseCase,
+    private val getAppModeUseCase: GetAppModeUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ModeSelectionState())
@@ -35,7 +35,7 @@ class ModeSelectionViewModel(
 
     private fun checkSelection() {
         viewModelScope.launch {
-            getAppModeUseCase?.invoke()?.collect { savedMode ->
+            getAppModeUseCase().collect { savedMode ->
                 if (savedMode != AppMode.UNDEFINED) {
                     _state.update { it.copy(navigationTarget = savedMode) }
                 }
@@ -45,14 +45,14 @@ class ModeSelectionViewModel(
 
     private fun navigateToTracker() {
         viewModelScope.launch {
-            setAppModeUseCase?.invoke(AppMode.TRACKER)
+            setAppModeUseCase(AppMode.TRACKER)
             _state.update { it.copy(navigationTarget = AppMode.TRACKER) }
         }
     }
 
     private fun navigateToObserver() {
         viewModelScope.launch {
-            setAppModeUseCase?.invoke(AppMode.OBSERVER)
+            setAppModeUseCase(AppMode.OBSERVER)
             _state.update { it.copy(navigationTarget = AppMode.OBSERVER) }
         }
     }
@@ -63,8 +63,8 @@ class ModeSelectionViewModel(
 }
 
 class ModeSelectionViewModelFactory(
-    private val setAppModeUseCase: SetAppModeUseCase? = null,
-    private val getAppModeUseCase: GetAppModeUseCase? = null
+    private val setAppModeUseCase: SetAppModeUseCase,
+    private val getAppModeUseCase: GetAppModeUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ModeSelectionViewModel::class.java)) {
