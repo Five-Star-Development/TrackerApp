@@ -22,13 +22,20 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionScreen
-import dev.five_star.trackingapp.features.modeselection.presentation.ModeSelectionViewModel
-import dev.five_star.trackingapp.features.observer.presentation.ObserverScreen
-import dev.five_star.trackingapp.features.tracker.data.LocationDataSource
-import dev.five_star.trackingapp.features.tracker.presentation.TrackerScreen
-import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModel
-import dev.five_star.trackingapp.features.tracker.presentation.TrackerViewModelFactory
+import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
+import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
+import dev.five_star.trackingapp.core.location.data.LocationDataSource
+import dev.five_star.trackingapp.core.settings.data.SharedPreferencesSettingsRepository
+import dev.five_star.trackingapp.core.settings.domain.AppMode
+import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
+import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
+import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
+import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
+import dev.five_star.trackingapp.feature.modeselection.ui.ModeSelectionScreen
+import dev.five_star.trackingapp.feature.observer.presentation.ObserverScreen
+import dev.five_star.trackingapp.feature.tracker.presentation.TrackerScreen
+import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
+import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 
 
@@ -46,6 +53,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val context = LocalContext.current
+                    val settingsRepository = remember { SharedPreferencesSettingsRepository(context) }
+                    val setAppModeUseCase = remember { SetAppModeUseCase(settingsRepository) }
+                    val getAppModeUseCase = remember { GetAppModeUseCase(settingsRepository) }
+
                     val backstack =
                         remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
 
@@ -63,19 +75,37 @@ class MainActivity : ComponentActivity() {
                         entryProvider = entryProvider {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
-                                    Modifier.padding(innerPadding),
-                                    viewModel<ModeSelectionViewModel>()
-                                ) { direction ->
-                                    backstack.add(direction)
-                                }
+                                    viewModel = viewModel<ModeSelectionViewModel>(
+                                        factory = ModeSelectionViewModelFactory(
+                                            setAppModeUseCase,
+                                            getAppModeUseCase
+                                        )
+                                    ),
+                                    onNavigate = { mode ->
+                                        val destination = when (mode) {
+                                            AppMode.TRACKER -> Destinations.Tracker
+                                            AppMode.OBSERVER -> Destinations.Observer
+                                            AppMode.UNDEFINED -> null
+                                        }
+                                        destination?.let { backstack.add(it) }
+                                    },
+                                    modifier = Modifier.padding(innerPadding)
+                                )
                             }
 
                             entry<Destinations.Tracker> {
-                                val context = LocalContext.current
-                                val locationDataSource = LocationDataSource(context)
+                                val locationDataSource = remember { LocationDataSource(context.applicationContext) }
+                                val locationRepository = remember {
+                                    FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
+                                }
+                                val trackingController = remember {
+                                    LocationTrackingController(context.applicationContext, locationRepository)
+                                }
                                 TrackerScreen(
                                     Modifier.padding(innerPadding),
-                                    viewModel<TrackerViewModel>(factory = TrackerViewModelFactory(locationDataSource))
+                                    viewModel<TrackerViewModel>(
+                                        factory = TrackerViewModelFactory(locationDataSource, trackingController)
+                                    )
                                 )
                             }
 

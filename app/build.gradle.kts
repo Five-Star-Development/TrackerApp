@@ -4,7 +4,6 @@ import java.io.InputStreamReader
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 }
@@ -87,6 +86,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:modeselection"))
+    implementation(project(":feature:tracker"))
+    implementation(project(":feature:observer"))
+    implementation(project(":core:settings"))
+    implementation(project(":core:location"))
     // Core & Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -104,19 +108,10 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.database.ktx)
-
-    // Maps
-    implementation(libs.maps.compose)
-    implementation(libs.play.services.maps)
-    implementation(libs.play.services.location)
-
     // Unit Tests
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.junit.jupiter.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.turbine)
