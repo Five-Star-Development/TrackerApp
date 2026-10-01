@@ -1,6 +1,7 @@
 package dev.five_star.trackingapp.feature.modeselection.presentation
 
+import dev.five_star.trackingapp.core.settings.domain.AppMode
+
 sealed class ModeSelectionAction {
-    data object OnTrackerClicked : ModeSelectionAction()
-    data object OnObserverClicked : ModeSelectionAction()
+    data class OnModeSelected(val mode: AppMode) : ModeSelectionAction()
 }

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +32,8 @@ import dev.five_star.trackingapp.feature.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 
 sealed class Destinations {
@@ -37,6 +41,27 @@ sealed class Destinations {
     data object Tracker : Destinations()
     data object Observer : Destinations()
 
+    companion object {
+        private val all by lazy { listOf(ModeSelection, Tracker, Observer) }
+
+        fun fromName(name: String): Destinations? = all.find { it.toString() == name }
+    }
+}
+
+/** Keeps the back stack across rotation and process death, data objects are stored by name. */
+private val BackStackSaver = listSaver(
+    save = { backStack -> backStack.map { it.toString() } },
+    restore = { names -> names.mapNotNull(Destinations::fromName).toMutableStateList() }
+)
+
+/** The saved mode is only evaluated on a fresh start; mode selection stays below so back leads to it. */
+private fun initialBackStack(savedMode: AppMode): SnapshotStateList<Destinations> {
+    val modeDestination = when (savedMode) {
+        AppMode.TRACKER -> Destinations.Tracker
+        AppMode.OBSERVER -> Destinations.Observer
+        AppMode.UNDEFINED -> null
+    }
+    return listOfNotNull(Destinations.ModeSelection, modeDestination).toMutableStateList()
 }
 
 class MainActivity : ComponentActivity() {
@@ -48,8 +73,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val backstack =
-                        remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
+                    val backstack = rememberSaveable(saver = BackStackSaver) {
+                        // the settings repository is backed by SharedPreferences and a StateFlow,
+                        // so first() returns immediately and does not block the main thread
+                        initialBackStack(runBlocking { app.getAppModeUseCase().first() })
+                    }
 
                     Log.d("MainActivity", "backstack: ${backstack.toList()}")
 
@@ -72,10 +100,7 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
                                     viewModel = viewModel<ModeSelectionViewModel>(
-                                        factory = ModeSelectionViewModelFactory(
-                                            app.setAppModeUseCase,
-                                            app.getAppModeUseCase
-                                        )
+                                        factory = ModeSelectionViewModelFactory(app.setAppModeUseCase)
                                     ),
                                     onNavigate = { mode ->
                                         val destination = when (mode) {

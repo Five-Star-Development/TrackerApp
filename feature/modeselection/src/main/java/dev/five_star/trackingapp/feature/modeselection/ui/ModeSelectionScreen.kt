@@ -5,17 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.five_star.trackingapp.core.settings.domain.AppMode
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionAction
-import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionState
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
 
 @Composable
@@ -24,32 +20,20 @@ fun ModeSelectionScreen(
     onNavigate: (AppMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
     ModeSelectionContent(
-        state = state,
-        onAction = { viewModel.onAction(it) },
-        onNavigate = onNavigate,
-        onNavigationConsumed = { viewModel.onNavigationConsumed() },
+        onModeSelected = { mode ->
+            viewModel.onAction(ModeSelectionAction.OnModeSelected(mode))
+            onNavigate(mode)
+        },
         modifier = modifier
     )
 }
 
 @Composable
 internal fun ModeSelectionContent(
-    state: ModeSelectionState,
-    onAction: (ModeSelectionAction) -> Unit,
-    onNavigate: (AppMode) -> Unit,
-    onNavigationConsumed: () -> Unit,
+    onModeSelected: (AppMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(state.navigationTarget) {
-        if (state.navigationTarget != AppMode.UNDEFINED) {
-            onNavigate(state.navigationTarget)
-            onNavigationConsumed()
-        }
-    }
-
     Column(
         modifier
             .fillMaxSize()
@@ -72,7 +56,7 @@ internal fun ModeSelectionContent(
                 .testTag("TrackerButton"),
             "Tracker",
             "🛰"
-        ) { onAction(ModeSelectionAction.OnTrackerClicked) }
+        ) { onModeSelected(AppMode.TRACKER) }
 
         ModeButton(
             Modifier
@@ -80,6 +64,6 @@ internal fun ModeSelectionContent(
                 .testTag("ObserverButton"),
             "Observer",
             "🗺"
-        ) { onAction(ModeSelectionAction.OnObserverClicked) }
+        ) { onModeSelected(AppMode.OBSERVER) }
     }
 }
