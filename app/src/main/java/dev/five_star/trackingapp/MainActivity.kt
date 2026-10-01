@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -22,10 +21,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import dev.five_star.trackingapp.core.settings.data.SharedPreferencesSettingsRepository
 import dev.five_star.trackingapp.core.settings.domain.AppMode
-import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
-import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
 import dev.five_star.trackingapp.feature.modeselection.ui.ModeSelectionScreen
@@ -47,15 +43,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val locationContainer = (application as TrackingApplication).locationContainer
+        val app = application as TrackingApplication
+        val locationContainer = app.locationContainer
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val context = LocalContext.current
-                    val settingsRepository = remember { SharedPreferencesSettingsRepository(context) }
-                    val setAppModeUseCase = remember { SetAppModeUseCase(settingsRepository) }
-                    val getAppModeUseCase = remember { GetAppModeUseCase(settingsRepository) }
-
                     val backstack =
                         remember { mutableStateListOf<Destinations>(Destinations.ModeSelection) }
 
@@ -81,8 +73,8 @@ class MainActivity : ComponentActivity() {
                                 ModeSelectionScreen(
                                     viewModel = viewModel<ModeSelectionViewModel>(
                                         factory = ModeSelectionViewModelFactory(
-                                            setAppModeUseCase,
-                                            getAppModeUseCase
+                                            app.setAppModeUseCase,
+                                            app.getAppModeUseCase
                                         )
                                     ),
                                     onNavigate = { mode ->
