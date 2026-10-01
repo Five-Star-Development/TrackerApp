@@ -1,16 +1,30 @@
+# Android
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+
+# IDE: only share code style and inspection profiles
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+
 .DS_Store
-/build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Kotlin
+.kotlin/
+
+# Secrets
 /local-secrets/
+
+# Build artifacts
+*.apk
+*.aar
+*.ap_
+*.dex
+
+# Log files
+*.log

@@ -1,8 +1,9 @@
 [versions]
-agp = "8.13.0"
-kotlin = "2.2.10"
+agp = "9.4.0"
+kotlin = "2.4.20"
 coreKtx = "1.17.0"
 junit = "5.13.4"
+junitPlatform = "1.13.4"
 googleGms = "4.4.2"
 firebaseBom = "33.1.2"
 
@@ -42,8 +43,10 @@ androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecy
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatform" }
 # Coroutine-Dispatcher for tests
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 # State flow testing
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 # Maps
@@ -56,6 +59,7 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGms" }
