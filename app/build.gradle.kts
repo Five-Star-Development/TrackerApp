@@ -1,39 +1,42 @@
-
-import java.io.BufferedReader
-import java.io.InputStreamReader
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 }
 
-fun getSecret(name: String): String {
+fun getSecret(name: String): String? {
     return try {
         val process = ProcessBuilder(
             "gcloud", "secrets", "versions", "access", "latest", "--secret=$name"
-        ).redirectErrorStream(true).start()
+        )
+            // keep gcloud warnings out of the secret value, show them in the build output instead
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+            .start()
 
-        val output = BufferedReader(InputStreamReader(process.inputStream)).readText().trim()
+        val output = process.inputStream.bufferedReader().readText().trim()
         val exitCode = process.waitFor()
-        if (exitCode == 0) output else {
-            println("Warning: failed to get secret $name (exit $exitCode)")
-            ""
+        if (exitCode == 0 && output.isNotEmpty()) output else {
+            logger.warn("Failed to get secret $name from gcloud (exit $exitCode)")
+            null
         }
     } catch (e: Exception) {
-        println("Error reading secret $name: ${e.message}")
-        ""
+        logger.warn("Error reading secret $name: ${e.message}")
+        null
     }
 }
 
 fun getCachedSecret(name: String): String {
-    val cacheDir = File(rootDir, "local-secrets")
-    val cacheFile = File(cacheDir, "$name.txt")
+    val cacheFile = File(rootDir, "local-secrets/$name.txt")
 
-    if (cacheFile.exists()) return cacheFile.readText().trim()
+    // an empty cache file is treated as missing so a previously failed fetch is retried
+    val cached = cacheFile.takeIf { it.exists() }?.readText()?.trim()
+    if (!cached.isNullOrEmpty()) return cached
 
-    val secret = getSecret(name)
-    cacheDir.mkdirs()
+    val secret = getSecret(name) ?: throw GradleException(
+        "Secret $name is not available. Run `gcloud auth login` and build again, " +
+            "or put the value into local-secrets/$name.txt"
+    )
+    cacheFile.parentFile.mkdirs()
     cacheFile.writeText(secret)
     return secret
 }
