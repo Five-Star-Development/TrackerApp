@@ -30,8 +30,7 @@ dependencies {
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.database)
 
     // Location
     implementation(libs.play.services.location)

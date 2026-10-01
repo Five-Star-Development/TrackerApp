@@ -18,11 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import dev.five_star.trackingapp.core.settings.domain.AppMode
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
@@ -92,8 +90,7 @@ class MainActivity : ComponentActivity() {
                         },
                         // necessary because we want rememberViewModelStoreNavEntryDecorator
                         entryDecorators = listOf(
-                            rememberSceneSetupNavEntryDecorator(),
-                            rememberSavedStateNavEntryDecorator(),
+                            rememberSaveableStateHolderNavEntryDecorator(),
                             rememberViewModelStoreNavEntryDecorator()
                         ),
                         entryProvider = entryProvider {
