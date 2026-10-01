@@ -94,6 +94,11 @@ dependencies {
     implementation(project(":feature:observer"))
     implementation(project(":core:settings"))
     implementation(project(":core:location"))
+
+    // Firebase (database instance is created in TrackingApplication)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database)
+
     // Core & Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
