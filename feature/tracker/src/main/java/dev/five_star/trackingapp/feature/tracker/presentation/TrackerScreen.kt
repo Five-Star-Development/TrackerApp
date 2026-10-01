@@ -25,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -151,7 +154,12 @@ fun MapView(
         position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 0f)
     }
 
-    LaunchedEffect(location) {
+    // CameraUpdateFactory only works once the map exists. A location can already be known on the
+    // first composition (e.g. the service was restarted before the UI was opened), so wait for the map.
+    var isMapReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(location, isMapReady) {
+        if (!isMapReady) return@LaunchedEffect
         location?.let {
             val latLng = LatLng(it.latitude, it.longitude)
             cameraPositionState.animate(
@@ -166,6 +174,7 @@ fun MapView(
         cameraPositionState = cameraPositionState
     ) {
         MapEffect(Unit) { map ->
+            isMapReady = true
             map.setOnCameraIdleListener {
                 onZoomChanged(cameraPositionState.position.zoom)
             }
