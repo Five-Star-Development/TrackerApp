@@ -7,11 +7,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -27,7 +32,7 @@ import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 
 sealed class Destinations {
@@ -60,18 +65,25 @@ private fun initialBackStack(savedMode: AppMode): SnapshotStateList<Destinations
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val app = application as TrackingApplication
         val locationContainer = app.locationContainer
+
+        // null while the saved mode is loading from DataStore, the splash screen stays visible meanwhile.
+        // After recreation the back stack is restored from saved state, so nothing has to be loaded.
+        var startMode by mutableStateOf(if (savedInstanceState != null) AppMode.UNDEFINED else null)
+        if (startMode == null) {
+            lifecycleScope.launch { startMode = app.getAppModeUseCase().first() }
+        }
+        splashScreen.setKeepOnScreenCondition { startMode == null }
+
         setContent {
+            val mode = startMode ?: return@setContent
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val backstack = rememberSaveable(saver = BackStackSaver) {
-                        // the settings repository is backed by SharedPreferences and a StateFlow,
-                        // so first() returns immediately and does not block the main thread
-                        initialBackStack(runBlocking { app.getAppModeUseCase().first() })
-                    }
+                    val backstack = rememberSaveable(saver = BackStackSaver) { initialBackStack(mode) }
 
                     NavDisplay(
                         backStack = backstack,

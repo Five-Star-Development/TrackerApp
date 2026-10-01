@@ -2,6 +2,8 @@
 agp = "9.4.0"
 kotlin = "2.4.20"
 coreKtx = "1.17.0"
+coreSplashscreen = "1.2.0"
+datastore = "1.2.1"
 junit = "5.13.4"
 junitPlatform = "1.13.4"
 googleGms = "4.5.0"
@@ -22,6 +24,8 @@ playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "testRunner" }
