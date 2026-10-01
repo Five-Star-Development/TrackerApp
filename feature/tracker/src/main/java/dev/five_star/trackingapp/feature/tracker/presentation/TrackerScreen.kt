@@ -170,7 +170,6 @@ fun MapView(
     ) {
         MapEffect(Unit) { map ->
             map.setOnCameraIdleListener {
-                Log.d("MapView", "camera idle ${cameraPositionState.position}")
                 onZoomChanged(cameraPositionState.position.zoom)
             }
         }

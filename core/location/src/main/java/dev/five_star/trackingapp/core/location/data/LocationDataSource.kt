@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -77,8 +76,6 @@ class LocationDataSource(private val context: Context) {
             override fun onLocationResult(result: LocationResult) {
                 // results can be batched, forward every location instead of only the last one
                 for (location in result.locations) {
-                    Log.d("LocationDataSource", "location: $location")
-                    Log.d("LocationDataSource", "accuracy: ${location.accuracy}")
                     trySend(location)
                 }
             }
