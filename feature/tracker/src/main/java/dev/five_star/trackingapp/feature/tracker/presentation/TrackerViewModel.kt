@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
+import dev.five_star.trackingapp.core.location.controller.TrackingController
 import dev.five_star.trackingapp.core.location.domain.model.LocationModel
 import dev.five_star.trackingapp.core.location.tracking.TrackingStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class TrackerViewModel(
     private val trackingStatus: TrackingStatus,
-    private val trackingController: LocationTrackingController
+    private val trackingController: TrackingController
 ) : ViewModel() {
 
     private val zoom = MutableStateFlow(DEFAULT_ZOOM)
@@ -61,7 +61,7 @@ class TrackerViewModel(
 
 class TrackerViewModelFactory(
     private val trackingStatus: TrackingStatus,
-    private val trackingController: LocationTrackingController
+    private val trackingController: TrackingController
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TrackerViewModel::class.java)) {

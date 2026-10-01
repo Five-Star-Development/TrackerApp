@@ -73,7 +73,7 @@ class LocationService : LifecycleService() {
         if (locationJob != null) {
             return
         }
-        val status = container.trackingStatus
+        val status = container.trackingStatusImpl
         locationJob = lifecycleScope.launch {
             container.locationDataSource.getLocationUpdates()
                 .map { it.toDomain() }

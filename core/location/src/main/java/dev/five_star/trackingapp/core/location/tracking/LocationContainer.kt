@@ -2,6 +2,7 @@ package dev.five_star.trackingapp.core.location.tracking
 
 import android.content.Context
 import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
+import dev.five_star.trackingapp.core.location.controller.TrackingController
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
 
@@ -15,9 +16,12 @@ class LocationContainer(
 ) {
     private val appContext = context.applicationContext
 
-    val trackingStatus = TrackingStatus(appContext)
+    // the service needs the implementation to publish locations, everyone else only gets the interface
+    internal val trackingStatusImpl = SharedPreferencesTrackingStatus(appContext)
+    val trackingStatus: TrackingStatus get() = trackingStatusImpl
+
     val locationDataSource = LocationDataSource(appContext)
-    val trackingController = LocationTrackingController(appContext)
+    val trackingController: TrackingController = LocationTrackingController(appContext)
 }
 
 /**

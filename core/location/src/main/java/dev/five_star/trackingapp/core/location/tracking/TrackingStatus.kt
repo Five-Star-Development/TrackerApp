@@ -12,22 +12,30 @@ import kotlinx.coroutines.flow.asStateFlow
  * The service publishes the latest location, the UI decides whether the service uploads it.
  * There must only be one instance per app, see [LocationContainer].
  */
-class TrackingStatus(context: Context) {
+interface TrackingStatus {
+    val lastLocation: StateFlow<LocationModel?>
+    val uploadEnabled: StateFlow<Boolean>
+
+    fun setUploadEnabled(enabled: Boolean)
+}
+
+class SharedPreferencesTrackingStatus(context: Context) : TrackingStatus {
 
     private val prefs = context.getSharedPreferences("tracking_status_prefs", Context.MODE_PRIVATE)
 
     private val _lastLocation = MutableStateFlow<LocationModel?>(null)
-    val lastLocation: StateFlow<LocationModel?> = _lastLocation.asStateFlow()
+    override val lastLocation: StateFlow<LocationModel?> = _lastLocation.asStateFlow()
 
     // persisted so a restarted service knows whether it should upload
     private val _uploadEnabled = MutableStateFlow(prefs.getBoolean(KEY_UPLOAD_ENABLED, false))
-    val uploadEnabled: StateFlow<Boolean> = _uploadEnabled.asStateFlow()
+    override val uploadEnabled: StateFlow<Boolean> = _uploadEnabled.asStateFlow()
 
-    fun setUploadEnabled(enabled: Boolean) {
+    override fun setUploadEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_UPLOAD_ENABLED, enabled) }
         _uploadEnabled.value = enabled
     }
 
+    // only the service in this module publishes locations
     internal fun updateLocation(location: LocationModel) {
         _lastLocation.value = location
     }
