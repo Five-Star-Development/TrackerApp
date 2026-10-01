@@ -1,13 +1,19 @@
 package dev.five_star.trackingapp.feature.modeselection.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.five_star.trackingapp.core.settings.domain.AppMode
@@ -65,5 +71,15 @@ internal fun ModeSelectionContent(
             "Observer",
             "🗺"
         ) { onModeSelected(AppMode.OBSERVER) }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ModeSelectionContentPreview() {
+    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+        Surface {
+            ModeSelectionContent(onModeSelected = {})
+        }
     }
 }
