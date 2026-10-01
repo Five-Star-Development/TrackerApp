@@ -21,6 +21,9 @@ android {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
+    testOptions {
+        unitTests.all { it.useJUnitPlatform() }
+    }
 }
 
 dependencies {
@@ -34,6 +37,12 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.coroutines.test)
+    testImplementation(kotlin("test"))
 
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.junit)

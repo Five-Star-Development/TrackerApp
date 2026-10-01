@@ -24,8 +24,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Foreground service that keeps receiving locations, also when the app is closed.
- * Every location is published to [dev.five_star.trackingapp.core.location.tracking.TrackingStatus];
- * it is only uploaded to the repositories while upload is enabled.
+ * What happens with each location is decided by
+ * [dev.five_star.trackingapp.core.location.domain.usecase.RecordLocationUseCase].
  */
 class LocationService : LifecycleService() {
 
@@ -73,7 +73,6 @@ class LocationService : LifecycleService() {
         if (locationJob != null) {
             return
         }
-        val status = container.trackingStatusImpl
         locationJob = lifecycleScope.launch {
             container.locationDataSource.getLocationUpdates()
                 .catch { e ->
@@ -82,14 +81,9 @@ class LocationService : LifecycleService() {
                 }
                 .collect { update ->
                     when (update) {
-                        is LocationUpdate.Availability -> status.setLocationAvailable(update.isAvailable)
-                        is LocationUpdate.Fix -> {
-                            val location = update.location.toDomain()
-                            status.updateLocation(location)
-                            if (status.uploadEnabled.value) {
-                                container.repositories.forEach { it.save(location) }
-                            }
-                        }
+                        is LocationUpdate.Availability ->
+                            container.mutableTrackingStatus.setLocationAvailable(update.isAvailable)
+                        is LocationUpdate.Fix -> container.recordLocation(update.location.toDomain())
                     }
                 }
         }
@@ -97,7 +91,7 @@ class LocationService : LifecycleService() {
 
     override fun onDestroy() {
         // the last location stays visible in the UI, but without a running service there is no signal
-        container.trackingStatusImpl.setLocationAvailable(false)
+        container.mutableTrackingStatus.setLocationAvailable(false)
         super.onDestroy()
     }
 

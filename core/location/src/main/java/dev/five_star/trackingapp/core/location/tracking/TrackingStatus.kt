@@ -24,7 +24,13 @@ interface TrackingStatus {
     fun setUploadEnabled(enabled: Boolean)
 }
 
-class SharedPreferencesTrackingStatus(context: Context) : TrackingStatus {
+/** Write access for the tracking side (service and use cases), the UI only gets [TrackingStatus]. */
+interface MutableTrackingStatus : TrackingStatus {
+    fun updateLocation(location: LocationModel)
+    fun setLocationAvailable(available: Boolean)
+}
+
+class SharedPreferencesTrackingStatus(context: Context) : MutableTrackingStatus {
 
     private val prefs = context.getSharedPreferences("tracking_status_prefs", Context.MODE_PRIVATE)
 
@@ -43,13 +49,12 @@ class SharedPreferencesTrackingStatus(context: Context) : TrackingStatus {
         _uploadEnabled.value = enabled
     }
 
-    // only the service in this module publishes locations and availability
-    internal fun updateLocation(location: LocationModel) {
+    override fun updateLocation(location: LocationModel) {
         _lastLocation.value = location
         _isLocationAvailable.value = true
     }
 
-    internal fun setLocationAvailable(available: Boolean) {
+    override fun setLocationAvailable(available: Boolean) {
         _isLocationAvailable.value = available
     }
 

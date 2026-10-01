@@ -5,6 +5,7 @@ import dev.five_star.trackingapp.core.location.controller.LocationTrackingContro
 import dev.five_star.trackingapp.core.location.controller.TrackingController
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
+import dev.five_star.trackingapp.core.location.domain.usecase.RecordLocationUseCase
 
 /**
  * Holds the app wide location dependencies. Created once by the Application,
@@ -12,13 +13,15 @@ import dev.five_star.trackingapp.core.location.domain.repository.LocationReposit
  */
 class LocationContainer(
     context: Context,
-    val repositories: List<LocationRepository>
+    repositories: List<LocationRepository>
 ) {
     private val appContext = context.applicationContext
 
-    // the service needs the implementation to publish locations, everyone else only gets the interface
-    internal val trackingStatusImpl = SharedPreferencesTrackingStatus(appContext)
-    val trackingStatus: TrackingStatus get() = trackingStatusImpl
+    // the service writes the status, everyone else only gets the read-only interface
+    internal val mutableTrackingStatus: MutableTrackingStatus = SharedPreferencesTrackingStatus(appContext)
+    val trackingStatus: TrackingStatus get() = mutableTrackingStatus
+
+    internal val recordLocation = RecordLocationUseCase(mutableTrackingStatus, repositories)
 
     val locationDataSource = LocationDataSource(appContext)
     val trackingController: TrackingController = LocationTrackingController(appContext)
