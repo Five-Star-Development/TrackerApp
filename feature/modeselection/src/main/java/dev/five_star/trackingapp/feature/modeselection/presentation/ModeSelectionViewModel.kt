@@ -7,6 +7,7 @@ import dev.five_star.trackingapp.core.settings.domain.AppMode
 import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
 import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -18,9 +19,17 @@ class ModeSelectionViewModel(
     private val getAppModeUseCase: GetAppModeUseCase
 ) : ViewModel() {
 
+    // restore the saved mode only once, otherwise coming back via back navigates forward again
+    private var selectionChecked = false
+
     private val _state = MutableStateFlow(ModeSelectionState())
     val state = _state
-        .onStart { checkSelection() }
+        .onStart {
+            if (!selectionChecked) {
+                selectionChecked = true
+                checkSelection()
+            }
+        }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
@@ -35,10 +44,9 @@ class ModeSelectionViewModel(
 
     private fun checkSelection() {
         viewModelScope.launch {
-            getAppModeUseCase().collect { savedMode ->
-                if (savedMode != AppMode.UNDEFINED) {
-                    _state.update { it.copy(navigationTarget = savedMode) }
-                }
+            val savedMode = getAppModeUseCase().first()
+            if (savedMode != AppMode.UNDEFINED) {
+                _state.update { it.copy(navigationTarget = savedMode) }
             }
         }
     }

@@ -22,9 +22,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
-import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
-import dev.five_star.trackingapp.core.location.data.LocationDataSource
 import dev.five_star.trackingapp.core.settings.data.SharedPreferencesSettingsRepository
 import dev.five_star.trackingapp.core.settings.domain.AppMode
 import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
@@ -50,6 +47,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val locationContainer = (application as TrackingApplication).locationContainer
         setContent {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -65,7 +63,13 @@ class MainActivity : ComponentActivity() {
 
                     NavDisplay(
                         backStack = backstack,
-                        onBack = { backstack.removeLastOrNull() },
+                        onBack = {
+                            // leaving the tracker via back stops the service; closing the app keeps it running
+                            if (backstack.lastOrNull() == Destinations.Tracker) {
+                                locationContainer.trackingController.stop()
+                            }
+                            backstack.removeLastOrNull()
+                        },
                         // necessary because we want rememberViewModelStoreNavEntryDecorator
                         entryDecorators = listOf(
                             rememberSceneSetupNavEntryDecorator(),
@@ -94,17 +98,13 @@ class MainActivity : ComponentActivity() {
                             }
 
                             entry<Destinations.Tracker> {
-                                val locationDataSource = remember { LocationDataSource(context.applicationContext) }
-                                val firebaseLocationRepository = remember {
-                                    FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
-                                }
-                                val trackingController = remember {
-                                    LocationTrackingController(context.applicationContext, firebaseLocationRepository)
-                                }
                                 TrackerScreen(
                                     Modifier.padding(innerPadding),
                                     viewModel<TrackerViewModel>(
-                                        factory = TrackerViewModelFactory(locationDataSource, trackingController)
+                                        factory = TrackerViewModelFactory(
+                                            locationContainer.trackingStatus,
+                                            locationContainer.trackingController
+                                        )
                                     )
                                 )
                             }

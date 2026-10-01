@@ -1,0 +1,38 @@
+package dev.five_star.trackingapp.core.location.tracking
+
+import android.content.Context
+import androidx.core.content.edit
+import dev.five_star.trackingapp.core.location.domain.model.LocationModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+/**
+ * Shared state between [dev.five_star.trackingapp.core.location.service.LocationService] and the UI.
+ * The service publishes the latest location, the UI decides whether the service uploads it.
+ * There must only be one instance per app, see [LocationContainer].
+ */
+class TrackingStatus(context: Context) {
+
+    private val prefs = context.getSharedPreferences("tracking_status_prefs", Context.MODE_PRIVATE)
+
+    private val _lastLocation = MutableStateFlow<LocationModel?>(null)
+    val lastLocation: StateFlow<LocationModel?> = _lastLocation.asStateFlow()
+
+    // persisted so a restarted service knows whether it should upload
+    private val _uploadEnabled = MutableStateFlow(prefs.getBoolean(KEY_UPLOAD_ENABLED, false))
+    val uploadEnabled: StateFlow<Boolean> = _uploadEnabled.asStateFlow()
+
+    fun setUploadEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(KEY_UPLOAD_ENABLED, enabled) }
+        _uploadEnabled.value = enabled
+    }
+
+    internal fun updateLocation(location: LocationModel) {
+        _lastLocation.value = location
+    }
+
+    private companion object {
+        const val KEY_UPLOAD_ENABLED = "upload_enabled"
+    }
+}

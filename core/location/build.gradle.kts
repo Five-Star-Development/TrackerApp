@@ -26,6 +26,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.lifecycle.service)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

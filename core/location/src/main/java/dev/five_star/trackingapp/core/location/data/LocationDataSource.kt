@@ -68,12 +68,16 @@ class LocationDataSource(private val context: Context) {
 
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY, 0L
-        ).setMinUpdateDistanceMeters(5F).build()
+        )
+            .setMinUpdateIntervalMillis(2000L)
+            .setMinUpdateDistanceMeters(5F)
+            .build()
 
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let { location ->
-                    Log.d("LocationDataSource", "lastLocation: $location")
+                // results can be batched, forward every location instead of only the last one
+                for (location in result.locations) {
+                    Log.d("LocationDataSource", "location: $location")
                     Log.d("LocationDataSource", "accuracy: ${location.accuracy}")
                     trySend(location)
                 }
@@ -89,7 +93,7 @@ class LocationDataSource(private val context: Context) {
         }
     }
 
-    private fun hasPermission(): Boolean {
+    fun hasPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED

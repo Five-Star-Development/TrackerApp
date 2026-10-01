@@ -7,6 +7,7 @@ fun Location.toDomain(): LocationModel {
     return LocationModel(
         latitude = latitude,
         longitude = longitude,
+        accuracy = accuracy,
         time = time
     )
 }

@@ -54,17 +54,17 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
-    val isTracking = state.value.isTracking
+    val isUploading = state.value.isUploading
     val location = state.value.location
     val zoom = state.value.zoom
 
     TrackerScreenContent(
         modifier = modifier,
         gpsStrength = gpsStrength,
-        isTracking = isTracking,
+        isUploading = isUploading,
         location = location,
         zoom = zoom,
-        onTrackingToggled = { viewModel.onAction(TrackerAction.OnTrackerClicked) },
+        onUploadToggled = { viewModel.onAction(TrackerAction.OnUploadToggled) },
         onZoomChanged = { viewModel.onAction(TrackerAction.UpdateZoom(it)) },
         onPermissionGranted = { viewModel.onAction(TrackerAction.OnPermissionGranted) }
     )
@@ -74,10 +74,10 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 fun TrackerScreenContent(
     modifier: Modifier,
     gpsStrength: GpsStrength,
-    isTracking: Boolean,
+    isUploading: Boolean,
     location: LatLng?,
     zoom: Float,
-    onTrackingToggled: () -> Unit = {},
+    onUploadToggled: () -> Unit = {},
     onZoomChanged: (Float) -> Unit = {},
     onPermissionGranted: () -> Unit = {},
 ) {
@@ -90,7 +90,7 @@ fun TrackerScreenContent(
         LocationPermissionHandler(onPermissionGranted = onPermissionGranted)
         GPSStatus(Modifier.weight(0.2f), gpsStrength)
 //        Text("GPS Value: $gpsValue")
-        ToggleTracking(Modifier.weight(0.3f), isTracking, onTrackingToggled)
+        ToggleUpload(Modifier.weight(0.3f), isUploading, onUploadToggled)
         MapView(
             Modifier
                 .weight(0.5f)
@@ -117,8 +117,8 @@ fun GPSStatus(modifier: Modifier, strength: GpsStrength) {
 }
 
 @Composable
-fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle: () -> Unit) {
-    val rotation by animateFloatAsState(targetValue = if (isTracking) 90f else 0f)
+fun ToggleUpload(modifier: Modifier = Modifier, isUploading: Boolean, onToggle: () -> Unit) {
+    val rotation by animateFloatAsState(targetValue = if (isUploading) 90f else 0f)
 
     Box(
         modifier = modifier
@@ -133,8 +133,8 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = if (isTracking) Icons.Filled.Close else Icons.Filled.PlayArrow,
-            contentDescription = if (isTracking) "Stop" else "Track",
+            imageVector = if (isUploading) Icons.Filled.Close else Icons.Filled.PlayArrow,
+            contentDescription = if (isUploading) "Stop upload" else "Start upload",
             modifier = Modifier
                 .fillMaxSize(0.6f)
                 .rotate(rotation)
