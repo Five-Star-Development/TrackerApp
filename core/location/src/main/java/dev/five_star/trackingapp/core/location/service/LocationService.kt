@@ -14,12 +14,12 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dev.five_star.trackingapp.core.location.R
+import dev.five_star.trackingapp.core.location.data.LocationUpdate
 import dev.five_star.trackingapp.core.location.data.toDomain
 import dev.five_star.trackingapp.core.location.tracking.LocationContainer
 import dev.five_star.trackingapp.core.location.tracking.LocationContainerProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -76,18 +76,29 @@ class LocationService : LifecycleService() {
         val status = container.trackingStatusImpl
         locationJob = lifecycleScope.launch {
             container.locationDataSource.getLocationUpdates()
-                .map { it.toDomain() }
                 .catch { e ->
                     Log.e(TAG, "location updates failed", e)
                     stopSelf()
                 }
-                .collect { location ->
-                    status.updateLocation(location)
-                    if (status.uploadEnabled.value) {
-                        container.repositories.forEach { it.save(location) }
+                .collect { update ->
+                    when (update) {
+                        is LocationUpdate.Availability -> status.setLocationAvailable(update.isAvailable)
+                        is LocationUpdate.Fix -> {
+                            val location = update.location.toDomain()
+                            status.updateLocation(location)
+                            if (status.uploadEnabled.value) {
+                                container.repositories.forEach { it.save(location) }
+                            }
+                        }
                     }
                 }
         }
+    }
+
+    override fun onDestroy() {
+        // the last location stays visible in the UI, but without a running service there is no signal
+        container.trackingStatusImpl.setLocationAvailable(false)
+        super.onDestroy()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -29,6 +29,7 @@ class SharedPreferencesTrackingStatusTest {
         val status = SharedPreferencesTrackingStatus(context)
 
         assertNull(status.lastLocation.value)
+        assertFalse(status.isLocationAvailable.value)
         assertFalse(status.uploadEnabled.value)
     }
 
@@ -48,6 +49,19 @@ class SharedPreferencesTrackingStatusTest {
 
         status.updateLocation(location)
 
+        assertEquals(location, status.lastLocation.value)
+        assertTrue(status.isLocationAvailable.value)
+    }
+
+    @Test
+    fun losingAvailabilityKeepsLastLocation() {
+        val status = SharedPreferencesTrackingStatus(context)
+        val location = LocationModel(latitude = 52.52, longitude = 13.40, accuracy = 4f, time = 1_000L)
+        status.updateLocation(location)
+
+        status.setLocationAvailable(false)
+
+        assertFalse(status.isLocationAvailable.value)
         assertEquals(location, status.lastLocation.value)
     }
 

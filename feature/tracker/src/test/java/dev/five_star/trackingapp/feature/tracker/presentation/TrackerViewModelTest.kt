@@ -71,8 +71,23 @@ class TrackerViewModelTest {
         val viewModel = createSubscribedViewModel()
 
         trackingStatus.lastLocation.value = location(accuracy = accuracy)
+        trackingStatus.isLocationAvailable.value = true
 
         assertEquals(expected, viewModel.state.value.gpsStrength)
+    }
+
+    @Test
+    fun `without available location the last location stays but shows no signal`() = runTest {
+        val viewModel = createSubscribedViewModel()
+        trackingStatus.lastLocation.value = location(latitude = 52.52, longitude = 13.40, accuracy = 3f)
+        trackingStatus.isLocationAvailable.value = true
+        assertEquals(GpsStrength.STRONG, viewModel.state.value.gpsStrength)
+
+        // service stopped or signal lost
+        trackingStatus.isLocationAvailable.value = false
+
+        assertEquals(GpsStrength.NO_SIGNAL, viewModel.state.value.gpsStrength)
+        assertEquals(LatLng(52.52, 13.40), viewModel.state.value.location)
     }
 
     @Test
@@ -117,6 +132,7 @@ class TrackerViewModelTest {
 
     private class FakeTrackingStatus : TrackingStatus {
         override val lastLocation = MutableStateFlow<LocationModel?>(null)
+        override val isLocationAvailable = MutableStateFlow(false)
 
         private val _uploadEnabled = MutableStateFlow(false)
         override val uploadEnabled: StateFlow<Boolean> = _uploadEnabled.asStateFlow()

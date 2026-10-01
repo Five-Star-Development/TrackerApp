@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -16,12 +17,19 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
+sealed interface LocationUpdate {
+    data class Fix(val location: Location) : LocationUpdate
+
+    /** Reported by the fused provider, e.g. false while location is switched off or no fix can be computed. */
+    data class Availability(val isAvailable: Boolean) : LocationUpdate
+}
+
 class LocationDataSource(private val context: Context) {
 
     private val fusedClient = LocationServices.getFusedLocationProviderClient(context)
 
     @SuppressLint("MissingPermission")
-    fun getLocationUpdates(): Flow<Location> = callbackFlow {
+    fun getLocationUpdates(): Flow<LocationUpdate> = callbackFlow {
         if (!hasPermission()) {
             close(IllegalStateException("Location permission not granted"))
             return@callbackFlow
@@ -38,8 +46,12 @@ class LocationDataSource(private val context: Context) {
             override fun onLocationResult(result: LocationResult) {
                 // results can be batched, forward every location instead of only the last one
                 for (location in result.locations) {
-                    trySend(location)
+                    trySend(LocationUpdate.Fix(location))
                 }
+            }
+
+            override fun onLocationAvailability(availability: LocationAvailability) {
+                trySend(LocationUpdate.Availability(availability.isLocationAvailable))
             }
         }
 

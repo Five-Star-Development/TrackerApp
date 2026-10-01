@@ -21,11 +21,16 @@ class TrackerViewModel(
 
     val state = combine(
         trackingStatus.lastLocation,
+        trackingStatus.isLocationAvailable,
         trackingStatus.uploadEnabled,
         zoom
-    ) { location, uploadEnabled, zoom ->
+    ) { location, isLocationAvailable, uploadEnabled, zoom ->
         TrackerState(
-            gpsStrength = location?.accuracy?.toGPSUiModel() ?: GpsStrength.NO_SIGNAL,
+            // the marker keeps the last known location, the signal only reflects a running service with a fix
+            gpsStrength = location?.accuracy
+                ?.takeIf { isLocationAvailable }
+                ?.toGPSUiModel()
+                ?: GpsStrength.NO_SIGNAL,
             isUploading = uploadEnabled,
             location = location?.toUiModel(),
             zoom = zoom
