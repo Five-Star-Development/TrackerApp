@@ -34,4 +34,8 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.coroutines.test)
 }
