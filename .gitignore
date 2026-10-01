@@ -2,20 +2,11 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/shelf
-/.idea/dictionaries
-/.idea/vcs.xml
-/.idea/jsLibraryMappings.xml
-/.idea/tasks.xml
-/.idea/compiler.xml
-/.idea/deploymentTargetDropDown.xml
-/.idea/gradle.xml
+
+# IDE: only share code style and inspection profiles
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
 
 .DS_Store
 **/build/

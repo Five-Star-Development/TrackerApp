@@ -95,11 +95,11 @@ class MainActivity : ComponentActivity() {
 
                             entry<Destinations.Tracker> {
                                 val locationDataSource = remember { LocationDataSource(context.applicationContext) }
-                                val locationRepository = remember {
+                                val firebaseLocationRepository = remember {
                                     FirebaseLocationRepository(BuildConfig.FIREBASE_DATABASE_URL)
                                 }
                                 val trackingController = remember {
-                                    LocationTrackingController(context.applicationContext, locationRepository)
+                                    LocationTrackingController(context.applicationContext, firebaseLocationRepository)
                                 }
                                 TrackerScreen(
                                     Modifier.padding(innerPadding),
