@@ -5,4 +5,8 @@
     <string name="gps_medium">Medium</string>
     <string name="gps_good">Good</string>
     <string name="gps_perfect">Perfect!</string>
+
+    <!--  Upload toggle  -->
+    <string name="upload_start">Start upload</string>
+    <string name="upload_stop">Stop upload</string>
 </resources>

@@ -1,21 +1,17 @@
 package dev.five_star.trackingapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -25,7 +21,7 @@ import dev.five_star.trackingapp.core.settings.domain.AppMode
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
 import dev.five_star.trackingapp.feature.modeselection.ui.ModeSelectionScreen
-import dev.five_star.trackingapp.feature.observer.presentation.ObserverScreen
+import dev.five_star.trackingapp.feature.observer.ui.ObserverScreen
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerScreen
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
 import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModelFactory
@@ -76,8 +72,6 @@ class MainActivity : ComponentActivity() {
                         // so first() returns immediately and does not block the main thread
                         initialBackStack(runBlocking { app.getAppModeUseCase().first() })
                     }
-
-                    Log.d("MainActivity", "backstack: ${backstack.toList()}")
 
                     NavDisplay(
                         backStack = backstack,
@@ -131,21 +125,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TrackingAppTheme {
-        Greeting("Android")
     }
 }

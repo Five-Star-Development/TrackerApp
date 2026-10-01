@@ -94,7 +94,7 @@ class LocationService : LifecycleService() {
     private fun createNotificationChannel() {
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
-            "Location Tracking Channel", // User-visible name in App Info
+            getString(R.string.tracking_channel_name), // User-visible name in App Info
             NotificationManager.IMPORTANCE_DEFAULT
         )
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -114,11 +114,11 @@ class LocationService : LifecycleService() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Tracker")
-            .setContentText("Tracking active")
+            .setContentTitle(getString(R.string.tracking_notification_title))
+            .setContentText(getString(R.string.tracking_notification_text))
             .setSmallIcon(R.drawable.ic_notification_location)
             .setContentIntent(openPendingIntent)
-            .addAction(0, "Stop", stopPendingIntent)
+            .addAction(0, getString(R.string.tracking_notification_stop), stopPendingIntent)
             .setOngoing(true)
             .build()
     }

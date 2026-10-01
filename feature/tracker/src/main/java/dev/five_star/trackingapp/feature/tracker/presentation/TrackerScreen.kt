@@ -2,8 +2,6 @@ package dev.five_star.trackingapp.feature.tracker.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
@@ -37,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -49,6 +46,7 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import dev.five_star.trackingapp.feature.tracker.R
 @Composable
 fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
@@ -89,7 +87,6 @@ fun TrackerScreenContent(
     ) {
         LocationPermissionHandler(onPermissionGranted = onPermissionGranted)
         GPSStatus(Modifier.weight(0.2f), gpsStrength)
-//        Text("GPS Value: $gpsValue")
         ToggleUpload(Modifier.weight(0.3f), isUploading, onUploadToggled)
         MapView(
             Modifier
@@ -134,7 +131,7 @@ fun ToggleUpload(modifier: Modifier = Modifier, isUploading: Boolean, onToggle: 
     ) {
         Icon(
             imageVector = if (isUploading) Icons.Filled.Close else Icons.Filled.PlayArrow,
-            contentDescription = if (isUploading) "Stop upload" else "Start upload",
+            contentDescription = stringResource(if (isUploading) R.string.upload_stop else R.string.upload_start),
             modifier = Modifier
                 .fillMaxSize(0.6f)
                 .rotate(rotation)
@@ -185,7 +182,6 @@ fun MapView(
 @Composable
 fun LocationPermissionHandler(onPermissionGranted: () -> Unit) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -197,22 +193,12 @@ fun LocationPermissionHandler(onPermissionGranted: () -> Unit) {
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    Log.d("TrackerScreen", "findLocationState: $findLocationState")
-
     val permissionGranted = findLocationState == PackageManager.PERMISSION_GRANTED
 
     LaunchedEffect(permissionGranted) {
         if (permissionGranted) {
             onPermissionGranted()
         } else {
-            activity?.let {
-                val test = ActivityCompat.shouldShowRequestPermissionRationale(
-                    it,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-                Log.d("TrackerScreen", "test: $test")
-            }
-            Log.d("TrackerScreen", "requesting permission")
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }

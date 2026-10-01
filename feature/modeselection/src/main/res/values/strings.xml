@@ -1,0 +1,6 @@
+<resources>
+    <string name="mode_selection_title">Select if you want to use this device as a Tracker or as an Observer</string>
+    <string name="mode_button_prefix">" use this \n device as"</string>
+    <string name="mode_tracker">Tracker</string>
+    <string name="mode_observer">Observer</string>
+</resources>

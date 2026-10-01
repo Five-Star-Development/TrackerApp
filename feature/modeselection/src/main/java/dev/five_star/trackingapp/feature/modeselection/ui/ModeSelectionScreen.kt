@@ -12,11 +12,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.five_star.trackingapp.core.settings.domain.AppMode
+import dev.five_star.trackingapp.feature.modeselection.R
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionAction
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
 
@@ -47,7 +49,7 @@ internal fun ModeSelectionContent(
     ) {
 
         Text(
-            text = "Select if you want to use this device as a Tracker or as a Observer",
+            text = stringResource(R.string.mode_selection_title),
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp)
                 .weight(0.4f),
@@ -60,7 +62,7 @@ internal fun ModeSelectionContent(
             Modifier
                 .weight(0.3f)
                 .testTag("TrackerButton"),
-            "Tracker",
+            stringResource(R.string.mode_tracker),
             "🛰"
         ) { onModeSelected(AppMode.TRACKER) }
 
@@ -68,7 +70,7 @@ internal fun ModeSelectionContent(
             Modifier
                 .weight(0.3f)
                 .testTag("ObserverButton"),
-            "Observer",
+            stringResource(R.string.mode_observer),
             "🗺"
         ) { onModeSelected(AppMode.OBSERVER) }
     }
