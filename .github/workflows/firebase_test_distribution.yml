@@ -10,6 +10,9 @@ concurrency:
 jobs:
   firebase-test-distribution:
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
 
     steps:
       - uses: actions/checkout@v1

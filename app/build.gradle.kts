@@ -26,6 +26,10 @@ fun getSecret(name: String): String? {
 }
 
 fun getCachedSecret(name: String): String {
+    // CI provides the secrets as environment variables
+    val fromEnv = providers.environmentVariable(name).orNull?.trim()
+    if (!fromEnv.isNullOrEmpty()) return fromEnv
+
     val cacheFile = File(rootDir, "local-secrets/$name.txt")
 
     // an empty cache file is treated as missing so a previously failed fetch is retried
@@ -34,7 +38,7 @@ fun getCachedSecret(name: String): String {
 
     val secret = getSecret(name) ?: throw GradleException(
         "Secret $name is not available. Run `gcloud auth login` and build again, " +
-            "or put the value into local-secrets/$name.txt"
+            "put the value into local-secrets/$name.txt or set the environment variable $name"
     )
     cacheFile.parentFile.mkdirs()
     cacheFile.writeText(secret)
