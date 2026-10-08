@@ -4,13 +4,11 @@ import android.app.Application
 import com.google.firebase.Firebase
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
-import dev.five_star.trackingapp.core.location.data.FirebaseLocationRepository
-import dev.five_star.trackingapp.core.location.tracking.LocationContainer
-import dev.five_star.trackingapp.core.location.tracking.LocationContainerProvider
+import dev.five_star.trackingapp.core.location.LocationContainer
+import dev.five_star.trackingapp.core.location.LocationContainerProvider
+import dev.five_star.trackingapp.core.location.data.FirebaseLocationDataSource
 import dev.five_star.trackingapp.core.settings.data.DataStoreSettingsRepository
-import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
-import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
-import dev.five_star.trackingapp.core.settings.domain.SettingsRepository
+import dev.five_star.trackingapp.core.settings.data.SettingsRepository
 
 class TrackingApplication : Application(), LocationContainerProvider {
 
@@ -25,11 +23,9 @@ class TrackingApplication : Application(), LocationContainerProvider {
     override val locationContainer: LocationContainer by lazy {
         LocationContainer(
             context = this,
-            repositories = listOf(FirebaseLocationRepository(firebaseDatabase))
+            remoteDataSource = FirebaseLocationDataSource(firebaseDatabase)
         )
     }
 
-    private val settingsRepository: SettingsRepository by lazy { DataStoreSettingsRepository(this) }
-    val setAppModeUseCase by lazy { SetAppModeUseCase(settingsRepository) }
-    val getAppModeUseCase by lazy { GetAppModeUseCase(settingsRepository) }
+    val settingsRepository: SettingsRepository by lazy { DataStoreSettingsRepository(this) }
 }

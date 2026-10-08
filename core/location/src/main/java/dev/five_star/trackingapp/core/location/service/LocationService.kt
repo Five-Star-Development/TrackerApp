@@ -13,11 +13,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import dev.five_star.trackingapp.core.location.LocationContainer
+import dev.five_star.trackingapp.core.location.LocationContainerProvider
 import dev.five_star.trackingapp.core.location.R
 import dev.five_star.trackingapp.core.location.data.LocationUpdate
-import dev.five_star.trackingapp.core.location.data.toDomain
-import dev.five_star.trackingapp.core.location.tracking.LocationContainer
-import dev.five_star.trackingapp.core.location.tracking.LocationContainerProvider
+import dev.five_star.trackingapp.core.location.data.toModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 /**
  * Foreground service that keeps receiving locations, also when the app is closed.
  * What happens with each location is decided by
- * [dev.five_star.trackingapp.core.location.domain.usecase.RecordLocationUseCase].
+ * [dev.five_star.trackingapp.core.location.data.LocationRepository].
  */
 class LocationService : LifecycleService() {
 
@@ -83,7 +83,7 @@ class LocationService : LifecycleService() {
                     when (update) {
                         is LocationUpdate.Availability ->
                             container.mutableTrackingStatus.setLocationAvailable(update.isAvailable)
-                        is LocationUpdate.Fix -> container.recordLocation(update.location.toDomain())
+                        is LocationUpdate.Fix -> container.locationRepository.record(update.location.toModel())
                     }
                 }
         }

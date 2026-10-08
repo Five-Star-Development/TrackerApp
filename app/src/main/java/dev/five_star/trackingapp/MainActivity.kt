@@ -22,14 +22,14 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import dev.five_star.trackingapp.core.settings.domain.AppMode
-import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
-import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModelFactory
-import dev.five_star.trackingapp.feature.modeselection.ui.ModeSelectionScreen
-import dev.five_star.trackingapp.feature.observer.ui.ObserverScreen
-import dev.five_star.trackingapp.feature.tracker.presentation.TrackerScreen
-import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModel
-import dev.five_star.trackingapp.feature.tracker.presentation.TrackerViewModelFactory
+import dev.five_star.trackingapp.core.settings.model.AppMode
+import dev.five_star.trackingapp.feature.modeselection.ModeSelectionScreen
+import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModel
+import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModelFactory
+import dev.five_star.trackingapp.feature.observer.ObserverScreen
+import dev.five_star.trackingapp.feature.tracker.TrackerScreen
+import dev.five_star.trackingapp.feature.tracker.TrackerViewModel
+import dev.five_star.trackingapp.feature.tracker.TrackerViewModelFactory
 import dev.five_star.trackingapp.ui.theme.TrackingAppTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
         // After recreation the back stack is restored from saved state, so nothing has to be loaded.
         var startMode by mutableStateOf(if (savedInstanceState != null) AppMode.UNDEFINED else null)
         if (startMode == null) {
-            lifecycleScope.launch { startMode = app.getAppModeUseCase().first() }
+            lifecycleScope.launch { startMode = app.settingsRepository.getAppMode().first() }
         }
         splashScreen.setKeepOnScreenCondition { startMode == null }
 
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.ModeSelection> {
                                 ModeSelectionScreen(
                                     viewModel = viewModel<ModeSelectionViewModel>(
-                                        factory = ModeSelectionViewModelFactory(app.setAppModeUseCase)
+                                        factory = ModeSelectionViewModelFactory(app.settingsRepository)
                                     ),
                                     onNavigate = { mode ->
                                         val destination = when (mode) {
