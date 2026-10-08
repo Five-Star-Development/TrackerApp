@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.TrackingApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Shown while the saved app mode is loaded, then switches to the app theme -->
+    <style name="Theme.TrackingApp.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.TrackingApp</item>
+    </style>
 </resources>

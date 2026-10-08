@@ -4,7 +4,9 @@ import com.google.android.gms.maps.model.LatLng
 
 data class TrackerState(
     val gpsStrength: GpsStrength = GpsStrength.NO_SIGNAL,
-    val isTracking: Boolean = false,
+    val isUploading: Boolean = false,
     val location: LatLng? = null,
-    val zoom: Float = 0f
+    val zoom: Float = DEFAULT_ZOOM
 )
+
+const val DEFAULT_ZOOM = 15f

@@ -21,17 +21,30 @@ android {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
+    testOptions {
+        unitTests.all { it.useJUnitPlatform() }
+    }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.lifecycle.service)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.database)
 
     // Location
     implementation(libs.play.services.location)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.coroutines.test)
+    testImplementation(kotlin("test"))
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.coroutines.test)
 }

@@ -1,71 +1,48 @@
 package dev.five_star.trackingapp.feature.modeselection.presentation
 
-import app.cash.turbine.test
 import dev.five_star.trackingapp.core.settings.domain.AppMode
-import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
 import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
 import dev.five_star.trackingapp.core.settings.domain.SettingsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Test
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.assertEquals
 
-
+@OptIn(ExperimentalCoroutinesApi::class)
 class ModeSelectionViewModelTest {
 
-    private fun createViewModel(initialMode: AppMode = AppMode.UNDEFINED): Pair<ModeSelectionViewModel, FakeSettingsRepository> {
-        val repository = FakeSettingsRepository(initialMode)
-        val viewModel = ModeSelectionViewModel(
-            setAppModeUseCase = SetAppModeUseCase(repository),
-            getAppModeUseCase = GetAppModeUseCase(repository)
-        )
-        return viewModel to repository
+    @BeforeEach
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
     }
 
-    @Test
-    fun `onAction OnTrackerClicked updates state with Tracker destination and persists mode`() = runTest {
-        val (viewModel, repository) = createViewModel()
-        viewModel.state.test {
-            //to not have initial state
-            awaitItem()
-            viewModel.onAction(ModeSelectionAction.OnTrackerClicked)
-            assertEquals(AppMode.TRACKER, awaitItem().navigationTarget)
-            assertEquals(AppMode.TRACKER, repository.currentMode())
-
-            cancelAndIgnoreRemainingEvents()
-        }
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
-    @Test
-    fun `onAction OnObserver Clicked updates state with Observer destination and persists mode`() = runTest {
-        val (viewModel, repository) = createViewModel()
-        viewModel.state.test {
-            //to not have initial state
-            awaitItem()
-            viewModel.onAction(ModeSelectionAction.OnObserverClicked)
-            assertEquals(AppMode.OBSERVER, awaitItem().navigationTarget)
-            assertEquals(AppMode.OBSERVER, repository.currentMode())
+    @ParameterizedTest
+    @EnumSource(value = AppMode::class, names = ["TRACKER", "OBSERVER"])
+    fun `onAction OnModeSelected persists the selected mode`(mode: AppMode) {
+        val repository = FakeSettingsRepository()
+        val viewModel = ModeSelectionViewModel(SetAppModeUseCase(repository))
 
-            cancelAndIgnoreRemainingEvents()
-        }
+        viewModel.onAction(ModeSelectionAction.OnModeSelected(mode))
+
+        assertEquals(mode, repository.currentMode())
     }
 
-    @Test
-    fun `previously saved mode is restored as navigation target on start`() = runTest {
-        val (viewModel, _) = createViewModel(initialMode = AppMode.TRACKER)
-        viewModel.state.test {
-            //initial state before the saved mode is loaded
-            assertEquals(AppMode.UNDEFINED, awaitItem().navigationTarget)
-            assertEquals(AppMode.TRACKER, awaitItem().navigationTarget)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    private class FakeSettingsRepository(initialMode: AppMode) : SettingsRepository {
-        private val modeFlow = MutableStateFlow(initialMode)
+    private class FakeSettingsRepository : SettingsRepository {
+        private val modeFlow = MutableStateFlow(AppMode.UNDEFINED)
 
         override suspend fun setAppMode(mode: AppMode) {
             modeFlow.value = mode
@@ -75,5 +52,4 @@ class ModeSelectionViewModelTest {
 
         fun currentMode(): AppMode = modeFlow.value
     }
-
 }

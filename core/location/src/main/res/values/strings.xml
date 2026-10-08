@@ -1,0 +1,7 @@
+<resources>
+    <!-- Tracking notification -->
+    <string name="tracking_channel_name">Location Tracking Channel</string>
+    <string name="tracking_notification_title">Tracker</string>
+    <string name="tracking_notification_text">Tracking active</string>
+    <string name="tracking_notification_stop">Stop</string>
+</resources>

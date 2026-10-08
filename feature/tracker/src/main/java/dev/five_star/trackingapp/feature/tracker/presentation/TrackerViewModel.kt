@@ -1,87 +1,57 @@
 package dev.five_star.trackingapp.feature.tracker.presentation
 
-import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import dev.five_star.trackingapp.core.location.controller.LocationTrackingController
-import dev.five_star.trackingapp.core.location.data.LocationDataSource
+import dev.five_star.trackingapp.core.location.controller.TrackingController
+import dev.five_star.trackingapp.core.location.domain.model.LocationModel
+import dev.five_star.trackingapp.core.location.tracking.TrackingStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class TrackerViewModel(
-    private val locationDataSource: LocationDataSource,
-    private val trackingController: LocationTrackingController
+    private val trackingStatus: TrackingStatus,
+    private val trackingController: TrackingController
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(TrackerState())
-    val state = _state.stateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(5000), TrackerState()
+    private val zoom = MutableStateFlow(DEFAULT_ZOOM)
+
+    val state = combine(
+        trackingStatus.lastLocation,
+        trackingStatus.isLocationAvailable,
+        trackingStatus.uploadEnabled,
+        zoom
+    ) { location, isLocationAvailable, uploadEnabled, zoom ->
+        TrackerState(
+            // the marker keeps the last known location, the signal only reflects a running service with a fix
+            gpsStrength = location?.accuracy
+                ?.takeIf { isLocationAvailable }
+                ?.toGPSUiModel()
+                ?: GpsStrength.NO_SIGNAL,
+            isUploading = uploadEnabled,
+            location = location?.toUiModel(),
+            zoom = zoom
         )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TrackerState())
 
     fun onAction(action: TrackerAction) {
         when (action) {
-            is TrackerAction.OnTrackerClicked -> toggleTracking()
-            is TrackerAction.UpdateZoom -> updateZoom(action.zoom)
-            TrackerAction.OnPermissionGranted -> {
-//                observeGnssSignals()
-                observeLocation()
-            }
-        }
-
-    }
-
-    private fun observeLocation() {
-        viewModelScope.launch {
-            locationDataSource.getLocationUpdates().collect { location ->
-                _state.update {
-                    val zoom = if (state.value.location == null) 15f else state.value.zoom
-                    it.copy(
-                        location = location.toUiModel(),
-                        zoom = zoom,
-//                        gpsValue = location.accuracy.toDouble(),
-                        gpsStrength = location.accuracy.toGPSUiModel()
-                    )
+            TrackerAction.OnUploadToggled -> trackingStatus.setUploadEnabled(!trackingStatus.uploadEnabled.value)
+            is TrackerAction.UpdateZoom -> {
+                // the map reports its initial zoom of 0 before the first location is known
+                if (trackingStatus.lastLocation.value != null) {
+                    zoom.value = action.zoom
                 }
             }
+            // the service ignores repeated starts, so calling this more than once is fine
+            TrackerAction.OnPermissionGranted -> trackingController.start()
         }
     }
 
-    private fun toggleTracking() {
-        val isTracking = !_state.value.isTracking
-        _state.update { it.copy(isTracking = isTracking) }
-
-        if (isTracking) {
-            trackingController.start()
-        } else {
-            trackingController.stop()
-        }
-    }
-
-    private fun updateZoom(newZoom: Float) {
-        _state.update {
-            it.copy(
-                zoom = newZoom
-            )
-        }
-    }
-
-    private fun Location.toUiModel(): LatLng = LatLng(latitude, longitude)
-
-    private fun Double.toGPSUiModel(): GpsStrength {
-        return when {
-            this <= 0.0 -> GpsStrength.NO_SIGNAL
-            this < 30 -> GpsStrength.WEAK
-            this < 40 -> GpsStrength.MEDIUM
-            this < 50 -> GpsStrength.GOOD
-            this > 50 -> GpsStrength.STRONG
-            else -> GpsStrength.NO_SIGNAL
-        }
-    }
+    private fun LocationModel.toUiModel(): LatLng = LatLng(latitude, longitude)
 
     private fun Float.toGPSUiModel(): GpsStrength {
         return when {
@@ -92,17 +62,16 @@ class TrackerViewModel(
             else -> GpsStrength.NO_SIGNAL
         }
     }
-
 }
 
 class TrackerViewModelFactory(
-    private val locationDataSource: LocationDataSource,
-    private val trackingController: LocationTrackingController
+    private val trackingStatus: TrackingStatus,
+    private val trackingController: TrackingController
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TrackerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TrackerViewModel(locationDataSource, trackingController) as T
+            return TrackerViewModel(trackingStatus, trackingController) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

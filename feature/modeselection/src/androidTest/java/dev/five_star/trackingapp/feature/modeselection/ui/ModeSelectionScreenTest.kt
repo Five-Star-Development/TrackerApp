@@ -5,7 +5,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.five_star.trackingapp.core.settings.domain.AppMode
-import dev.five_star.trackingapp.core.settings.domain.GetAppModeUseCase
 import dev.five_star.trackingapp.core.settings.domain.SetAppModeUseCase
 import dev.five_star.trackingapp.core.settings.domain.SettingsRepository
 import dev.five_star.trackingapp.feature.modeselection.presentation.ModeSelectionViewModel
@@ -25,10 +24,7 @@ class ModeSelectionScreenTest {
 
     private fun createViewModel(): ModeSelectionViewModel {
         val repository = FakeSettingsRepository()
-        return ModeSelectionViewModel(
-            setAppModeUseCase = SetAppModeUseCase(repository),
-            getAppModeUseCase = GetAppModeUseCase(repository)
-        )
+        return ModeSelectionViewModel(setAppModeUseCase = SetAppModeUseCase(repository))
     }
 
     @Test

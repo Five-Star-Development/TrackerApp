@@ -1,12 +1,20 @@
-package dev.five_star.trackingapp.feature.observer.presentation
+package dev.five_star.trackingapp.feature.observer.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import dev.five_star.trackingapp.feature.observer.R
 
 @Composable
 fun ObserverScreen(modifier: Modifier) {
@@ -16,6 +24,16 @@ fun ObserverScreen(modifier: Modifier) {
             .testTag("observerScreenContent"),
         contentAlignment = Alignment.Center
     ) {
-        Text("Hello, I am the Observer")
+        Text(stringResource(R.string.observer_placeholder))
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ObserverScreenPreview() {
+    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+        Surface {
+            ObserverScreen(Modifier)
+        }
     }
 }

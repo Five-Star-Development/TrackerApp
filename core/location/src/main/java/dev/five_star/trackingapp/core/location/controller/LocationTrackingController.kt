@@ -2,22 +2,18 @@ package dev.five_star.trackingapp.core.location.controller
 
 import android.content.Context
 import android.content.Intent
-import dev.five_star.trackingapp.core.location.domain.repository.LocationRepository
+import androidx.core.content.ContextCompat
 import dev.five_star.trackingapp.core.location.service.LocationService
 
-class LocationTrackingController(
-    context: Context,
-    private vararg val repository: LocationRepository
-) {
+class LocationTrackingController(context: Context) : TrackingController {
+
     private val context = context.applicationContext
 
-    fun start() {
-        context.startService(Intent(context, LocationService::class.java))
-        LocationControllerManager.start(*repository)
+    override fun start() {
+        ContextCompat.startForegroundService(context, Intent(context, LocationService::class.java))
     }
 
-    fun stop() {
+    override fun stop() {
         context.stopService(Intent(context, LocationService::class.java))
-        LocationControllerManager.stop()
     }
 }

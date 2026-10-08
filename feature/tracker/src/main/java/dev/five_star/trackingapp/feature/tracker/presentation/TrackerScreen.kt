@@ -2,8 +2,6 @@ package dev.five_star.trackingapp.feature.tracker.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
@@ -27,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -49,22 +49,23 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import dev.five_star.trackingapp.feature.tracker.R
 @Composable
 fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val gpsStrength = state.value.gpsStrength
-    val isTracking = state.value.isTracking
+    val isUploading = state.value.isUploading
     val location = state.value.location
     val zoom = state.value.zoom
 
     TrackerScreenContent(
         modifier = modifier,
         gpsStrength = gpsStrength,
-        isTracking = isTracking,
+        isUploading = isUploading,
         location = location,
         zoom = zoom,
-        onTrackingToggled = { viewModel.onAction(TrackerAction.OnTrackerClicked) },
+        onUploadToggled = { viewModel.onAction(TrackerAction.OnUploadToggled) },
         onZoomChanged = { viewModel.onAction(TrackerAction.UpdateZoom(it)) },
         onPermissionGranted = { viewModel.onAction(TrackerAction.OnPermissionGranted) }
     )
@@ -74,10 +75,10 @@ fun TrackerScreen(modifier: Modifier, viewModel: TrackerViewModel) {
 fun TrackerScreenContent(
     modifier: Modifier,
     gpsStrength: GpsStrength,
-    isTracking: Boolean,
+    isUploading: Boolean,
     location: LatLng?,
     zoom: Float,
-    onTrackingToggled: () -> Unit = {},
+    onUploadToggled: () -> Unit = {},
     onZoomChanged: (Float) -> Unit = {},
     onPermissionGranted: () -> Unit = {},
 ) {
@@ -89,8 +90,7 @@ fun TrackerScreenContent(
     ) {
         LocationPermissionHandler(onPermissionGranted = onPermissionGranted)
         GPSStatus(Modifier.weight(0.2f), gpsStrength)
-//        Text("GPS Value: $gpsValue")
-        ToggleTracking(Modifier.weight(0.3f), isTracking, onTrackingToggled)
+        ToggleUpload(Modifier.weight(0.3f), isUploading, onUploadToggled)
         MapView(
             Modifier
                 .weight(0.5f)
@@ -117,8 +117,8 @@ fun GPSStatus(modifier: Modifier, strength: GpsStrength) {
 }
 
 @Composable
-fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle: () -> Unit) {
-    val rotation by animateFloatAsState(targetValue = if (isTracking) 90f else 0f)
+fun ToggleUpload(modifier: Modifier = Modifier, isUploading: Boolean, onToggle: () -> Unit) {
+    val rotation by animateFloatAsState(targetValue = if (isUploading) 90f else 0f)
 
     Box(
         modifier = modifier
@@ -133,8 +133,8 @@ fun ToggleTracking(modifier: Modifier = Modifier, isTracking: Boolean, onToggle:
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = if (isTracking) Icons.Filled.Close else Icons.Filled.PlayArrow,
-            contentDescription = if (isTracking) "Stop" else "Track",
+            imageVector = if (isUploading) Icons.Filled.Close else Icons.Filled.PlayArrow,
+            contentDescription = stringResource(if (isUploading) R.string.upload_stop else R.string.upload_start),
             modifier = Modifier
                 .fillMaxSize(0.6f)
                 .rotate(rotation)
@@ -154,7 +154,12 @@ fun MapView(
         position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 0f)
     }
 
-    LaunchedEffect(location) {
+    // CameraUpdateFactory only works once the map exists. A location can already be known on the
+    // first composition (e.g. the service was restarted before the UI was opened), so wait for the map.
+    var isMapReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(location, isMapReady) {
+        if (!isMapReady) return@LaunchedEffect
         location?.let {
             val latLng = LatLng(it.latitude, it.longitude)
             cameraPositionState.animate(
@@ -169,8 +174,8 @@ fun MapView(
         cameraPositionState = cameraPositionState
     ) {
         MapEffect(Unit) { map ->
+            isMapReady = true
             map.setOnCameraIdleListener {
-                Log.d("MapView", "camera idle ${cameraPositionState.position}")
                 onZoomChanged(cameraPositionState.position.zoom)
             }
         }
@@ -186,7 +191,6 @@ fun MapView(
 @Composable
 fun LocationPermissionHandler(onPermissionGranted: () -> Unit) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -198,22 +202,12 @@ fun LocationPermissionHandler(onPermissionGranted: () -> Unit) {
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    Log.d("TrackerScreen", "findLocationState: $findLocationState")
-
     val permissionGranted = findLocationState == PackageManager.PERMISSION_GRANTED
 
     LaunchedEffect(permissionGranted) {
         if (permissionGranted) {
             onPermissionGranted()
         } else {
-            activity?.let {
-                val test = ActivityCompat.shouldShowRequestPermissionRationale(
-                    it,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-                Log.d("TrackerScreen", "test: $test")
-            }
-            Log.d("TrackerScreen", "requesting permission")
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
