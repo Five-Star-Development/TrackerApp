@@ -1,9 +1,9 @@
 package dev.five_star.trackingapp.core.location.data
 
 import android.location.Location
-import dev.five_star.trackingapp.core.location.domain.model.LocationModel
+import dev.five_star.trackingapp.core.location.model.LocationModel
 
-fun Location.toDomain(): LocationModel {
+fun Location.toModel(): LocationModel {
     return LocationModel(
         latitude = latitude,
         longitude = longitude,
