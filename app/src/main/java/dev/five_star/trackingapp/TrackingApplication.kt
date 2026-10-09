@@ -23,7 +23,8 @@ class TrackingApplication : Application(), LocationContainerProvider {
     override val locationContainer: LocationContainer by lazy {
         LocationContainer(
             context = this,
-            remoteDataSource = FirebaseLocationDataSource(firebaseDatabase)
+            remoteDataSource = FirebaseLocationDataSource(firebaseDatabase),
+            uploadEnabled = settingsRepository.getUploadEnabled()
         )
     }
 

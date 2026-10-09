@@ -6,4 +6,9 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     suspend fun setAppMode(mode: AppMode)
     fun getAppMode(): Flow<AppMode>
+
+    suspend fun setUploadEnabled(enabled: Boolean)
+
+    /** Emits the current value on every collection, so readers always get the latest setting. */
+    fun getUploadEnabled(): Flow<Boolean>
 }

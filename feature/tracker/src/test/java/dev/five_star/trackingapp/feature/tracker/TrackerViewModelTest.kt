@@ -4,11 +4,13 @@ import com.google.android.gms.maps.model.LatLng
 import dev.five_star.trackingapp.core.location.data.TrackingStatus
 import dev.five_star.trackingapp.core.location.model.LocationModel
 import dev.five_star.trackingapp.core.location.service.TrackingController
+import dev.five_star.trackingapp.core.settings.data.SettingsRepository
+import dev.five_star.trackingapp.core.settings.model.AppMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -30,6 +32,7 @@ class TrackerViewModelTest {
 
     private val trackingStatus = FakeTrackingStatus()
     private val trackingController = FakeTrackingController()
+    private val settingsRepository = FakeSettingsRepository()
 
     @BeforeEach
     fun setUp() {
@@ -43,7 +46,7 @@ class TrackerViewModelTest {
 
     // state uses WhileSubscribed, so it only updates while someone collects it
     private fun TestScope.createSubscribedViewModel(): TrackerViewModel {
-        val viewModel = TrackerViewModel(trackingStatus, trackingController)
+        val viewModel = TrackerViewModel(trackingStatus, trackingController, settingsRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.state.collect {} }
         return viewModel
     }
@@ -91,15 +94,15 @@ class TrackerViewModelTest {
     }
 
     @Test
-    fun `OnUploadToggled toggles upload in tracking status`() = runTest {
+    fun `OnUploadToggled toggles upload in settings`() = runTest {
         val viewModel = createSubscribedViewModel()
 
         viewModel.onAction(TrackerAction.OnUploadToggled)
-        assertTrue(trackingStatus.uploadEnabled.value)
+        assertTrue(settingsRepository.uploadEnabled.value)
         assertTrue(viewModel.state.value.isUploading)
 
         viewModel.onAction(TrackerAction.OnUploadToggled)
-        assertFalse(trackingStatus.uploadEnabled.value)
+        assertFalse(settingsRepository.uploadEnabled.value)
         assertFalse(viewModel.state.value.isUploading)
     }
 
@@ -133,13 +136,20 @@ class TrackerViewModelTest {
     private class FakeTrackingStatus : TrackingStatus {
         override val lastLocation = MutableStateFlow<LocationModel?>(null)
         override val isLocationAvailable = MutableStateFlow(false)
+    }
 
-        private val _uploadEnabled = MutableStateFlow(false)
-        override val uploadEnabled: StateFlow<Boolean> = _uploadEnabled.asStateFlow()
+    private class FakeSettingsRepository : SettingsRepository {
+        val uploadEnabled = MutableStateFlow(false)
 
-        override fun setUploadEnabled(enabled: Boolean) {
-            _uploadEnabled.value = enabled
+        override suspend fun setAppMode(mode: AppMode) = Unit
+
+        override fun getAppMode(): Flow<AppMode> = flowOf(AppMode.TRACKER)
+
+        override suspend fun setUploadEnabled(enabled: Boolean) {
+            uploadEnabled.value = enabled
         }
+
+        override fun getUploadEnabled(): Flow<Boolean> = uploadEnabled
     }
 
     private class FakeTrackingController : TrackingController {

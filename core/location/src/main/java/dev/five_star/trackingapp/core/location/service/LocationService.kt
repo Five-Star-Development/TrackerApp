@@ -16,16 +16,20 @@ import androidx.lifecycle.lifecycleScope
 import dev.five_star.trackingapp.core.location.LocationContainer
 import dev.five_star.trackingapp.core.location.LocationContainerProvider
 import dev.five_star.trackingapp.core.location.R
+import dev.five_star.trackingapp.core.location.data.LocationRepository
 import dev.five_star.trackingapp.core.location.data.LocationUpdate
+import dev.five_star.trackingapp.core.location.data.MutableTrackingStatus
 import dev.five_star.trackingapp.core.location.data.toModel
+import dev.five_star.trackingapp.core.location.model.LocationModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
  * Foreground service that keeps receiving locations, also when the app is closed.
- * Every location is published to the tracking status for the UI and handed to
- * [dev.five_star.trackingapp.core.location.data.LocationRepository] for the upload.
+ * What happens with each location is decided by [recordLocation].
  */
 class LocationService : LifecycleService() {
 
@@ -83,11 +87,12 @@ class LocationService : LifecycleService() {
                     when (update) {
                         is LocationUpdate.Availability ->
                             container.mutableTrackingStatus.setLocationAvailable(update.isAvailable)
-                        is LocationUpdate.Fix -> {
-                            val location = update.location.toModel()
-                            container.mutableTrackingStatus.updateLocation(location)
-                            container.locationRepository.upload(location)
-                        }
+                        is LocationUpdate.Fix -> recordLocation(
+                            location = update.location.toModel(),
+                            trackingStatus = container.mutableTrackingStatus,
+                            uploadEnabled = container.uploadEnabled,
+                            locationRepository = container.locationRepository
+                        )
                     }
                 }
         }
@@ -134,5 +139,21 @@ class LocationService : LifecycleService() {
 
     companion object {
         private const val ACTION_STOP = "dev.five_star.trackingapp.core.location.STOP_TRACKING"
+    }
+}
+
+/**
+ * Every location is published for the UI, but only uploaded while upload is enabled.
+ * The setting is read for every location, so switching it takes effect while the service keeps running.
+ */
+internal suspend fun recordLocation(
+    location: LocationModel,
+    trackingStatus: MutableTrackingStatus,
+    uploadEnabled: Flow<Boolean>,
+    locationRepository: LocationRepository
+) {
+    trackingStatus.updateLocation(location)
+    if (uploadEnabled.first()) {
+        locationRepository.upload(location)
     }
 }
