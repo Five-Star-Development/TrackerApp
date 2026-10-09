@@ -24,8 +24,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Foreground service that keeps receiving locations, also when the app is closed.
- * What happens with each location is decided by
- * [dev.five_star.trackingapp.core.location.data.LocationRepository].
+ * Every location is published to the tracking status for the UI and handed to
+ * [dev.five_star.trackingapp.core.location.data.LocationRepository] for the upload.
  */
 class LocationService : LifecycleService() {
 
@@ -83,7 +83,11 @@ class LocationService : LifecycleService() {
                     when (update) {
                         is LocationUpdate.Availability ->
                             container.mutableTrackingStatus.setLocationAvailable(update.isAvailable)
-                        is LocationUpdate.Fix -> container.locationRepository.record(update.location.toModel())
+                        is LocationUpdate.Fix -> {
+                            val location = update.location.toModel()
+                            container.mutableTrackingStatus.updateLocation(location)
+                            container.locationRepository.upload(location)
+                        }
                     }
                 }
         }
