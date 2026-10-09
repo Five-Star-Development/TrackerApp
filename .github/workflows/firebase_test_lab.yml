@@ -54,15 +54,24 @@ jobs:
         with:
           project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
 
+      # the instrumented tests live in the library modules, their test APKs instrument themselves,
+      # the app APK is only passed because gcloud requires --app
       - name: Run Firebase Test Lab tests
         run: |
-          gcloud firebase test android run \
-            --type instrumentation \
-            --app app/build/outputs/apk/debug/app-debug.apk \
-            --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
-            --timeout 5m \
-            --format=json \
-            --verbosity=info
+          for apk in \
+            core/location/build/outputs/apk/androidTest/debug/location-debug-androidTest.apk \
+            core/settings/build/outputs/apk/androidTest/debug/settings-debug-androidTest.apk \
+            feature/modeselection/build/outputs/apk/androidTest/debug/modeselection-debug-androidTest.apk
+          do
+            echo "=== $apk ==="
+            gcloud firebase test android run \
+              --type instrumentation \
+              --app app/build/outputs/apk/debug/app-debug.apk \
+              --test "$apk" \
+              --timeout 5m \
+              --format=json \
+              --verbosity=info
+          done
 
       - name: Show test results
         if: always()
