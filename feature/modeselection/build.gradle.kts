@@ -49,11 +49,10 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.junit.jupiter.params)
     testImplementation(libs.coroutines.test)
-    testImplementation(libs.turbine)
     testImplementation(kotlin("test"))
 
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
