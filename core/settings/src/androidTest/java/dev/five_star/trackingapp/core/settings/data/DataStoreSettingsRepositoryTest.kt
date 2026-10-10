@@ -24,22 +24,17 @@ class DataStoreSettingsRepositoryTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    // every test uses its own files, DataStore allows only one instance per file and process
+    // every test uses its own file, DataStore allows only one instance per file and process
     private val testName = "settings_test_${UUID.randomUUID()}"
-    private val legacyPrefsName = "${testName}_legacy"
-    private val legacyTrackingPrefsName = "${testName}_legacy_tracking"
 
     @After
     fun cleanUp() {
         context.preferencesDataStoreFile(testName).delete()
-        context.deleteSharedPreferences(legacyPrefsName)
-        context.deleteSharedPreferences(legacyTrackingPrefsName)
     }
 
     private fun TestScope.createDataStore(): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             scope = backgroundScope,
-            migrations = settingsMigrations(context, legacyPrefsName, legacyTrackingPrefsName),
             produceFile = { context.preferencesDataStoreFile(testName) }
         )
 
@@ -59,15 +54,6 @@ class DataStoreSettingsRepositoryTest {
         assertEquals(AppMode.TRACKER, repository.getAppMode().first())
     }
 
-    @Test
-    fun modeSavedInSharedPreferencesIsMigrated() = runTest {
-        context.getSharedPreferences(legacyPrefsName, Context.MODE_PRIVATE)
-            .edit().putInt("app_mode", AppMode.OBSERVER.value).commit()
-
-        val repository = DataStoreSettingsRepository(createDataStore())
-
-        assertEquals(AppMode.OBSERVER, repository.getAppMode().first())
-    }
 
     @Test
     fun uploadIsDisabledWhenNothingWasSaved() = runTest {
@@ -87,15 +73,5 @@ class DataStoreSettingsRepositoryTest {
 
         repository.setUploadEnabled(false)
         assertFalse(repository.getUploadEnabled().first())
-    }
-
-    @Test
-    fun uploadSettingFromTrackingStatusPrefsIsMigrated() = runTest {
-        context.getSharedPreferences(legacyTrackingPrefsName, Context.MODE_PRIVATE)
-            .edit().putBoolean("upload_enabled", true).commit()
-
-        val repository = DataStoreSettingsRepository(createDataStore())
-
-        assertTrue(repository.getUploadEnabled().first())
     }
 }
