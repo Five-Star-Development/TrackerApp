@@ -21,6 +21,8 @@ import dev.five_star.trackingapp.core.location.data.LocationUpdate
 import dev.five_star.trackingapp.core.location.data.MutableTrackingStatus
 import dev.five_star.trackingapp.core.location.data.toModel
 import dev.five_star.trackingapp.core.location.model.LocationModel
+import dev.five_star.trackingapp.core.settings.data.SettingsRepository
+import dev.five_star.trackingapp.core.settings.data.SettingsRepositoryProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -38,11 +40,13 @@ class LocationService : LifecycleService() {
     private val NOTIF_ID = 1303
 
     private lateinit var container: LocationContainer
+    private lateinit var settingsRepository: SettingsRepository
     private var locationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
         container = (application as LocationContainerProvider).locationContainer
+        settingsRepository = (application as SettingsRepositoryProvider).settingsRepository
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         }
@@ -90,7 +94,7 @@ class LocationService : LifecycleService() {
                         is LocationUpdate.Fix -> recordLocation(
                             location = update.location.toModel(),
                             trackingStatus = container.mutableTrackingStatus,
-                            uploadEnabled = container.uploadEnabled,
+                            uploadEnabled = settingsRepository.getUploadEnabled(),
                             locationRepository = container.locationRepository
                         )
                     }

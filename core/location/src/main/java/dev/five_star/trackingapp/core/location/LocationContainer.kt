@@ -9,19 +9,14 @@ import dev.five_star.trackingapp.core.location.data.MutableTrackingStatus
 import dev.five_star.trackingapp.core.location.data.TrackingStatus
 import dev.five_star.trackingapp.core.location.service.LocationTrackingController
 import dev.five_star.trackingapp.core.location.service.TrackingController
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Holds the app wide location dependencies. Created once by the Application,
  * which exposes it through [LocationContainerProvider].
- *
- * @param uploadEnabled the user setting whether locations are uploaded; passed in by the app
- * so this module does not depend on the settings module.
  */
 class LocationContainer(
     context: Context,
-    remoteDataSource: LocationRemoteDataSource,
-    internal val uploadEnabled: Flow<Boolean>
+    remoteDataSource: LocationRemoteDataSource
 ) {
     private val appContext = context.applicationContext
 
