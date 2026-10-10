@@ -9,8 +9,9 @@ import dev.five_star.trackingapp.core.location.LocationContainerProvider
 import dev.five_star.trackingapp.core.location.data.FirebaseLocationDataSource
 import dev.five_star.trackingapp.core.settings.data.DataStoreSettingsRepository
 import dev.five_star.trackingapp.core.settings.data.SettingsRepository
+import dev.five_star.trackingapp.core.settings.data.SettingsRepositoryProvider
 
-class TrackingApplication : Application(), LocationContainerProvider {
+class TrackingApplication : Application(), LocationContainerProvider, SettingsRepositoryProvider {
 
     // persistence keeps pending writes on disk, so locations recorded offline survive a process death.
     // It must be enabled before any other usage of the instance, which is why it is created only here.
@@ -27,5 +28,5 @@ class TrackingApplication : Application(), LocationContainerProvider {
         )
     }
 
-    val settingsRepository: SettingsRepository by lazy { DataStoreSettingsRepository(this) }
+    override val settingsRepository: SettingsRepository by lazy { DataStoreSettingsRepository(this) }
 }

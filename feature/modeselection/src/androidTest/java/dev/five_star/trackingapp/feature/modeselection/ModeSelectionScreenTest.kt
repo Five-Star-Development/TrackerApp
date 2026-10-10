@@ -9,6 +9,7 @@ import dev.five_star.trackingapp.core.settings.model.AppMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -59,6 +60,10 @@ class ModeSelectionScreenTest {
         }
 
         override fun getAppMode(): Flow<AppMode> = modeFlow.asStateFlow()
+
+        override suspend fun setUploadEnabled(enabled: Boolean) = Unit
+
+        override fun getUploadEnabled(): Flow<Boolean> = flowOf(false)
     }
 
 }

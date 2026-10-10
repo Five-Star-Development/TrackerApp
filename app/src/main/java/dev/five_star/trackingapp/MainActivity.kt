@@ -123,7 +123,8 @@ class MainActivity : ComponentActivity() {
                                     viewModel<TrackerViewModel>(
                                         factory = TrackerViewModelFactory(
                                             locationContainer.trackingStatus,
-                                            locationContainer.trackingController
+                                            locationContainer.trackingController,
+                                            app.settingsRepository
                                         )
                                     )
                                 )
