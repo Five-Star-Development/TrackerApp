@@ -7,14 +7,18 @@ import com.google.android.gms.maps.model.LatLng
 import dev.five_star.trackingapp.core.location.data.TrackingStatus
 import dev.five_star.trackingapp.core.location.model.LocationModel
 import dev.five_star.trackingapp.core.location.service.TrackingController
+import dev.five_star.trackingapp.core.settings.data.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class TrackerViewModel(
     private val trackingStatus: TrackingStatus,
-    private val trackingController: TrackingController
+    private val trackingController: TrackingController,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val zoom = MutableStateFlow(DEFAULT_ZOOM)
@@ -22,7 +26,7 @@ class TrackerViewModel(
     val state = combine(
         trackingStatus.lastLocation,
         trackingStatus.isLocationAvailable,
-        trackingStatus.uploadEnabled,
+        settingsRepository.getUploadEnabled(),
         zoom
     ) { location, isLocationAvailable, uploadEnabled, zoom ->
         TrackerState(
@@ -39,7 +43,9 @@ class TrackerViewModel(
 
     fun onAction(action: TrackerAction) {
         when (action) {
-            TrackerAction.OnUploadToggled -> trackingStatus.setUploadEnabled(!trackingStatus.uploadEnabled.value)
+            TrackerAction.OnUploadToggled -> viewModelScope.launch {
+                settingsRepository.setUploadEnabled(!settingsRepository.getUploadEnabled().first())
+            }
             is TrackerAction.UpdateZoom -> {
                 // the map reports its initial zoom of 0 before the first location is known
                 if (trackingStatus.lastLocation.value != null) {
@@ -66,12 +72,13 @@ class TrackerViewModel(
 
 class TrackerViewModelFactory(
     private val trackingStatus: TrackingStatus,
-    private val trackingController: TrackingController
+    private val trackingController: TrackingController,
+    private val settingsRepository: SettingsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TrackerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TrackerViewModel(trackingStatus, trackingController) as T
+            return TrackerViewModel(trackingStatus, trackingController, settingsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

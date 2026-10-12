@@ -7,6 +7,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -48,6 +49,10 @@ class ModeSelectionViewModelTest {
         }
 
         override fun getAppMode(): Flow<AppMode> = modeFlow.asStateFlow()
+
+        override suspend fun setUploadEnabled(enabled: Boolean) = Unit
+
+        override fun getUploadEnabled(): Flow<Boolean> = flowOf(false)
 
         fun currentMode(): AppMode = modeFlow.value
     }

@@ -16,16 +16,22 @@ import androidx.lifecycle.lifecycleScope
 import dev.five_star.trackingapp.core.location.LocationContainer
 import dev.five_star.trackingapp.core.location.LocationContainerProvider
 import dev.five_star.trackingapp.core.location.R
+import dev.five_star.trackingapp.core.location.data.LocationRepository
 import dev.five_star.trackingapp.core.location.data.LocationUpdate
+import dev.five_star.trackingapp.core.location.data.MutableTrackingStatus
 import dev.five_star.trackingapp.core.location.data.toModel
+import dev.five_star.trackingapp.core.location.model.LocationModel
+import dev.five_star.trackingapp.core.settings.data.SettingsRepository
+import dev.five_star.trackingapp.core.settings.data.SettingsRepositoryProvider
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
  * Foreground service that keeps receiving locations, also when the app is closed.
- * What happens with each location is decided by
- * [dev.five_star.trackingapp.core.location.data.LocationRepository].
+ * What happens with each location is decided by [recordLocation].
  */
 class LocationService : LifecycleService() {
 
@@ -34,11 +40,13 @@ class LocationService : LifecycleService() {
     private val NOTIF_ID = 1303
 
     private lateinit var container: LocationContainer
+    private lateinit var settingsRepository: SettingsRepository
     private var locationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
         container = (application as LocationContainerProvider).locationContainer
+        settingsRepository = (application as SettingsRepositoryProvider).settingsRepository
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         }
@@ -83,7 +91,12 @@ class LocationService : LifecycleService() {
                     when (update) {
                         is LocationUpdate.Availability ->
                             container.mutableTrackingStatus.setLocationAvailable(update.isAvailable)
-                        is LocationUpdate.Fix -> container.locationRepository.record(update.location.toModel())
+                        is LocationUpdate.Fix -> recordLocation(
+                            location = update.location.toModel(),
+                            trackingStatus = container.mutableTrackingStatus,
+                            uploadEnabled = settingsRepository.getUploadEnabled(),
+                            locationRepository = container.locationRepository
+                        )
                     }
                 }
         }
@@ -130,5 +143,21 @@ class LocationService : LifecycleService() {
 
     companion object {
         private const val ACTION_STOP = "dev.five_star.trackingapp.core.location.STOP_TRACKING"
+    }
+}
+
+/**
+ * Every location is published for the UI, but only uploaded while upload is enabled.
+ * The setting is read for every location, so switching it takes effect while the service keeps running.
+ */
+internal suspend fun recordLocation(
+    location: LocationModel,
+    trackingStatus: MutableTrackingStatus,
+    uploadEnabled: Flow<Boolean>,
+    locationRepository: LocationRepository
+) {
+    trackingStatus.updateLocation(location)
+    if (uploadEnabled.first()) {
+        locationRepository.upload(location)
     }
 }
