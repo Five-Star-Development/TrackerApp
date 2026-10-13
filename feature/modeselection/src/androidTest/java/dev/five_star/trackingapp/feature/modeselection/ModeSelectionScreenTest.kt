@@ -49,7 +49,7 @@ class ModeSelectionScreenTest {
         composeTestRule.onNodeWithTag("ObserverButton").performClick()
 
         composeTestRule.waitForIdle()
-        assertEquals(AppMode.OBSERVER, navigatedTo)
+        assertEquals(AppMode.OBSERVER_LIST, navigatedTo)
     }
 
     private class FakeSettingsRepository : SettingsRepository {

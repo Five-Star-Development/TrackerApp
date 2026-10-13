@@ -47,7 +47,7 @@ fun getCachedSecret(name: String): String {
 
 android {
     namespace = "dev.five_star.trackingapp"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.five_star.trackingapp"
@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.adaptive.navigation3)
 
     debugImplementation(libs.androidx.ui.tooling)
 }

@@ -31,7 +31,7 @@ class ModeSelectionViewModelTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = AppMode::class, names = ["TRACKER", "OBSERVER"])
+    @EnumSource(value = AppMode::class, names = ["TRACKER", "OBSERVER_LIST"])
     fun `onAction OnModeSelected persists the selected mode`(mode: AppMode) {
         val repository = FakeSettingsRepository()
         val viewModel = ModeSelectionViewModel(repository)

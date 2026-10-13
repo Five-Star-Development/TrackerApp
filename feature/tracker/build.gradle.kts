@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "dev.five_star.trackingapp.feature.tracker"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24

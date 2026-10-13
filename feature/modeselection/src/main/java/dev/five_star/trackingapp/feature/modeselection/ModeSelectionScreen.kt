@@ -69,7 +69,7 @@ internal fun ModeSelectionContent(
                 .testTag("ObserverButton"),
             stringResource(R.string.mode_observer),
             "🗺"
-        ) { onModeSelected(AppMode.OBSERVER) }
+        ) { onModeSelected(AppMode.OBSERVER_LIST) }
     }
 }
 

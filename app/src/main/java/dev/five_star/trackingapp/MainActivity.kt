@@ -7,8 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -26,6 +30,7 @@ import dev.five_star.trackingapp.core.settings.model.AppMode
 import dev.five_star.trackingapp.feature.modeselection.ModeSelectionScreen
 import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModel
 import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModelFactory
+import dev.five_star.trackingapp.feature.observer.ObserverDetailScreen
 import dev.five_star.trackingapp.feature.observer.ObserverScreen
 import dev.five_star.trackingapp.feature.tracker.TrackerScreen
 import dev.five_star.trackingapp.feature.tracker.TrackerViewModel
@@ -38,10 +43,11 @@ import kotlinx.coroutines.launch
 sealed class Destinations {
     data object ModeSelection : Destinations()
     data object Tracker : Destinations()
-    data object Observer : Destinations()
+    data object ObserverList : Destinations()
+    data class ObserverDetail(val id: String) : Destinations()
 
     companion object {
-        private val all by lazy { listOf(ModeSelection, Tracker, Observer) }
+        private val all by lazy { listOf(ModeSelection, Tracker, ObserverList) }
 
         fun fromName(name: String): Destinations? = all.find { it.toString() == name }
     }
@@ -57,13 +63,14 @@ private val BackStackSaver = listSaver(
 private fun initialBackStack(savedMode: AppMode): SnapshotStateList<Destinations> {
     val modeDestination = when (savedMode) {
         AppMode.TRACKER -> Destinations.Tracker
-        AppMode.OBSERVER -> Destinations.Observer
+        AppMode.OBSERVER_LIST -> Destinations.ObserverList
         AppMode.UNDEFINED -> null
     }
     return listOfNotNull(Destinations.ModeSelection, modeDestination).toMutableStateList()
 }
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -84,9 +91,12 @@ class MainActivity : ComponentActivity() {
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val backstack = rememberSaveable(saver = BackStackSaver) { initialBackStack(mode) }
+                    val listDetailStrategy = rememberListDetailSceneStrategy<Destinations>()
+                    val sceneStrategy = remember(listDetailStrategy) { listOf(listDetailStrategy)}
 
                     NavDisplay(
                         backStack = backstack,
+                        sceneStrategies = sceneStrategy,
                         onBack = {
                             // leaving the tracker via back stops the service; closing the app keeps it running
                             if (backstack.lastOrNull() == Destinations.Tracker) {
@@ -108,7 +118,7 @@ class MainActivity : ComponentActivity() {
                                     onNavigate = { mode ->
                                         val destination = when (mode) {
                                             AppMode.TRACKER -> Destinations.Tracker
-                                            AppMode.OBSERVER -> Destinations.Observer
+                                            AppMode.OBSERVER_LIST -> Destinations.ObserverList
                                             AppMode.UNDEFINED -> null
                                         }
                                         destination?.let { backstack.add(it) }
@@ -130,8 +140,19 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            entry<Destinations.Observer> {
-                                ObserverScreen(Modifier.padding(innerPadding))
+                            entry<Destinations.ObserverList>(
+                                metadata = ListDetailSceneStrategy.listPane()
+                            ) {
+                                ObserverScreen(
+                                    Modifier.padding(innerPadding),
+                                    onItemSelected = { id -> backstack.add(Destinations.ObserverDetail(id)) }
+                                )
+                            }
+
+                            entry<Destinations.ObserverDetail>(
+                                metadata = ListDetailSceneStrategy.detailPane()
+                            ) {
+                                key -> ObserverDetailScreen(Modifier.padding(innerPadding), key.id)
                             }
                         }
                     )
