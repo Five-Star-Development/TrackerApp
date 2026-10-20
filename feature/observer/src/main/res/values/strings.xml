@@ -1,3 +1,4 @@
 <resources>
     <string name="observer_placeholder">Hello, I am the Observer</string>
+    <string name="observer_detail_error">Die Positionen konnten nicht geladen werden</string>
 </resources>

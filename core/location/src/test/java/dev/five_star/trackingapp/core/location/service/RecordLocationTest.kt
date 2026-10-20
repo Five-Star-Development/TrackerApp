@@ -65,5 +65,7 @@ class RecordLocationTest {
         override suspend fun save(location: LocationModel) {
             saved += location
         }
+
+        override suspend fun load(id: String): List<LocationModel> = saved
     }
 }

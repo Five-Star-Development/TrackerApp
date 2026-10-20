@@ -31,7 +31,9 @@ import dev.five_star.trackingapp.feature.modeselection.ModeSelectionScreen
 import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModel
 import dev.five_star.trackingapp.feature.modeselection.ModeSelectionViewModelFactory
 import dev.five_star.trackingapp.feature.observer.ObserverDetailScreen
-import dev.five_star.trackingapp.feature.observer.ObserverScreen
+import dev.five_star.trackingapp.feature.observer.ObserverDetailViewModel
+import dev.five_star.trackingapp.feature.observer.ObserverDetailViewModelFactory
+import dev.five_star.trackingapp.feature.observer.ObserverListScreen
 import dev.five_star.trackingapp.feature.tracker.TrackerScreen
 import dev.five_star.trackingapp.feature.tracker.TrackerViewModel
 import dev.five_star.trackingapp.feature.tracker.TrackerViewModelFactory
@@ -90,9 +92,10 @@ class MainActivity : ComponentActivity() {
             val mode = startMode ?: return@setContent
             TrackingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val backstack = rememberSaveable(saver = BackStackSaver) { initialBackStack(mode) }
+                    val backstack =
+                        rememberSaveable(saver = BackStackSaver) { initialBackStack(mode) }
                     val listDetailStrategy = rememberListDetailSceneStrategy<Destinations>()
-                    val sceneStrategy = remember(listDetailStrategy) { listOf(listDetailStrategy)}
+                    val sceneStrategy = remember(listDetailStrategy) { listOf(listDetailStrategy) }
 
                     NavDisplay(
                         backStack = backstack,
@@ -143,16 +146,31 @@ class MainActivity : ComponentActivity() {
                             entry<Destinations.ObserverList>(
                                 metadata = ListDetailSceneStrategy.listPane()
                             ) {
-                                ObserverScreen(
+                                ObserverListScreen(
                                     Modifier.padding(innerPadding),
-                                    onItemSelected = { id -> backstack.add(Destinations.ObserverDetail(id)) }
+                                    onItemSelected = { id ->
+                                        backstack.add(
+                                            Destinations.ObserverDetail(
+                                                id
+                                            )
+                                        )
+                                    }
                                 )
                             }
 
                             entry<Destinations.ObserverDetail>(
                                 metadata = ListDetailSceneStrategy.detailPane()
-                            ) {
-                                key -> ObserverDetailScreen(Modifier.padding(innerPadding), key.id)
+                            ) { key ->
+                                ObserverDetailScreen(
+                                    Modifier.padding(innerPadding),
+                                    key.id,
+                                    viewModel<ObserverDetailViewModel>(
+                                        factory = ObserverDetailViewModelFactory(
+                                            key.id,
+                                            locationContainer.locationHistoryRepository
+                                        )
+                                    )
+                                )
                             }
                         }
                     )

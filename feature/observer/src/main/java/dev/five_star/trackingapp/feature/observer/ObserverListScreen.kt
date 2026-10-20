@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 
 @Composable
-fun ObserverScreen(modifier: Modifier, onItemSelected: (id: String) -> Unit) {
+fun ObserverListScreen(modifier: Modifier, onItemSelected: (id: String) -> Unit) {
     Box(
         modifier
             .fillMaxSize()
@@ -25,16 +25,16 @@ fun ObserverScreen(modifier: Modifier, onItemSelected: (id: String) -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(stringResource(R.string.observer_placeholder),
-            Modifier.clickable { onItemSelected("test") })
+            Modifier.clickable { onItemSelected("AddFirebaseAuthUID") })
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun ObserverScreenPreview() {
+private fun ObserverListScreenPreview() {
     MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
         Surface {
-            ObserverScreen(Modifier, {})
+            ObserverListScreen(Modifier, {})
         }
     }
 }

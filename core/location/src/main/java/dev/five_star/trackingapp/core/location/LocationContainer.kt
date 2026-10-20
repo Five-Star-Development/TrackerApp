@@ -3,6 +3,7 @@ package dev.five_star.trackingapp.core.location
 import android.content.Context
 import dev.five_star.trackingapp.core.location.data.InMemoryTrackingStatus
 import dev.five_star.trackingapp.core.location.data.LocationDataSource
+import dev.five_star.trackingapp.core.location.data.LocationHistoryRepository
 import dev.five_star.trackingapp.core.location.data.LocationRemoteDataSource
 import dev.five_star.trackingapp.core.location.data.LocationRepository
 import dev.five_star.trackingapp.core.location.data.MutableTrackingStatus
@@ -24,7 +25,9 @@ class LocationContainer(
     internal val mutableTrackingStatus: MutableTrackingStatus = InMemoryTrackingStatus()
     val trackingStatus: TrackingStatus get() = mutableTrackingStatus
 
+    // only the service uploads, the observer gets the read-only interface
     internal val locationRepository = LocationRepository(remoteDataSource)
+    val locationHistoryRepository: LocationHistoryRepository get() = locationRepository
 
     val locationDataSource = LocationDataSource(appContext)
     val trackingController: TrackingController = LocationTrackingController(appContext)
